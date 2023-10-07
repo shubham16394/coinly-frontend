@@ -1,0 +1,32 @@
+<div class="centered-row">
+  <h3 mat-dialog-title>{{ data.date | date : "MMM dd, yyyy hh:mm a" }}</h3>
+  <div mat-dialog-content>
+    <mat-form-field>
+      <mat-label>Expense Type</mat-label>
+      <mat-select [(value)]="expType">
+        <mat-option *ngFor="let exp of expensesType" [value]="exp.value">
+          {{ exp.viewValue }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Expense Value (₹)</mat-label>
+      <input matInput [(ngModel)]="data.value" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Comment</mat-label>
+      <input matInput [(ngModel)]="data.comment" />
+    </mat-form-field>
+  </div>
+</div>
+<div mat-dialog-actions style="justify-content: right !important">
+  <button mat-button (click)="onNoClick()">Cancel</button>
+  <button
+    mat-button
+    mat-dialog-close
+    (click)="addDailyExpense(data)"
+    cdkFocusInitial
+  >
+    Add
+  </button>
+</div>

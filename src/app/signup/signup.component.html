@@ -1,0 +1,107 @@
+<div class="border">
+  <mat-card class="centered-row">
+    <mat-card-header class="centered-row">
+      <mat-card-title>Sign Up</mat-card-title>
+      <br />
+      <br />
+      <br />
+    </mat-card-header>
+    <mat-card-content>
+      <form class="example-form" [formGroup]="signupForm" (ngSubmit)="signUp()">
+        <mat-form-field class="example-full-width">
+          <mat-label>First Name</mat-label>
+          <input
+            type="text"
+            matInput
+            formControlName="firstName"
+            placeholder="John"
+          />
+          <mat-error *ngIf="signupForm.get('firstName')?.hasError('required')">
+            Frist Name is <strong>required</strong>
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field class="example-full-width">
+          <mat-label>Last Name</mat-label>
+          <input
+            type="text"
+            matInput
+            formControlName="lastName"
+            placeholder="Doe"
+          />
+          <mat-error *ngIf="signupForm.get('lastName')?.hasError('required')">
+            Last Name is <strong>required</strong>
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field class="example-full-width">
+          <mat-label>Email</mat-label>
+          <input
+            type="email"
+            matInput
+            formControlName="email"
+            placeholder="Ex. john@example.com"
+          />
+          <mat-error
+            *ngIf="
+              signupForm.get('email')?.hasError('email') &&
+              !signupForm.get('email')?.hasError('required')
+            "
+          >
+            Please enter a valid email address
+          </mat-error>
+          <mat-error *ngIf="signupForm.get('email')?.hasError('required')">
+            Email is <strong>required</strong>
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field class="example-full-width">
+          <mat-label>Password</mat-label>
+          <input
+            type="password"
+            matInput
+            formControlName="password"
+            placeholder="Use min 8 characters, min 1 capital letter, min 1 small letter, min 1 special character"
+          />
+          <mat-error
+            *ngIf="
+              signupForm.get('password')?.hasError('pattern') &&
+              !signupForm.get('password')?.hasError('required')
+            "
+          >
+            Please enter a valid password
+          </mat-error>
+          <mat-error *ngIf="signupForm.get('password')?.hasError('required')">  
+            Password is <strong>required</strong>
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field class="example-full-width">
+          <mat-label>Confirm Password</mat-label>
+          <input
+            type="password"
+            matInput
+            formControlName="confirmPassword"
+            placeholder="Should be same as Password"
+          />
+          <mat-error
+            *ngIf="
+              signupForm.get('confirmPassword')?.hasError('notMatched') &&
+              !signupForm.get('confirmPassword')?.hasError('required')
+            "
+          >
+            Please enter confirm password same as password
+          </mat-error>
+          <mat-error *ngIf="signupForm.get('confirmPassword')?.hasError('required')">
+            Confirm Password is <strong>required</strong>
+          </mat-error>
+        </mat-form-field>
+        <button mat-raised-button color="primary" [disabled] = "errorsCount">Sign Up</button>
+      </form>
+      <br />
+      or
+      <br />
+      <br />
+      <button mat-raised-button color="warn">Sign in with Google</button>
+      <br>
+      <br>
+      Already have account? <a class="signup-login-link" routerLink=""><strong>Login</strong></a>
+    </mat-card-content>
+  </mat-card>
+</div>
