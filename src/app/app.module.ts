@@ -23,6 +23,7 @@ import { AddDailyExpenseComponent } from './add-daily-expense/add-daily-expense.
 import {MatDialogModule} from '@angular/material/dialog';
 import { AddMonthlyExpenseComponent } from './add-monthly-expense/add-monthly-expense.component';
 import {MatSelectModule} from '@angular/material/select';
+import { BudgetModule } from './budget/budget.module';
 
 @NgModule({
   declarations: [
@@ -50,7 +51,8 @@ import {MatSelectModule} from '@angular/material/select';
     MatNativeDateModule,
     MatDatepickerModule,
     MatDialogModule,
-    MatSelectModule
+    MatSelectModule,
+    BudgetModule
   ],
   providers: [],
   bootstrap: [AppComponent]

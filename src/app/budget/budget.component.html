@@ -1,0 +1,240 @@
+<div class="border-budget">
+  <div class="centered-row">
+    <div class="button-container-nospace">
+      <h4 class="margin-tb-13">
+        {{ month | date : "MMM, yyyy" }}
+      </h4>
+      <input
+        hidden
+        matInput
+        [matDatepicker]="pickerMonth"
+        [(ngModel)]="month"
+        (dateChange)="changeDate($event)"
+      />
+      <mat-datepicker-toggle
+        matIconSuffix
+        [for]="pickerMonth"
+      ></mat-datepicker-toggle>
+      <mat-datepicker
+        #pickerMonth
+        startView="multi-year"
+        (monthSelected)="setMonthAndYear($event, pickerMonth)"
+        panelClass="example-month-picker"
+      >
+      </mat-datepicker>
+    </div>
+  </div>
+
+  <table
+    *ngIf="dataSource !== null"
+    mat-table
+    [dataSource]="dataSource"
+    class="mat-elevation-z8"
+  >
+    <ng-container matColumnDef="position">
+      <th mat-header-cell *matHeaderCellDef>No.</th>
+      <td mat-cell *matCellDef="let element">{{ element.position }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="value">
+      <th mat-header-cell *matHeaderCellDef>Value</th>
+      <td mat-cell *matCellDef="let element">{{ element.value }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let element">
+        <button
+          mat-button
+          class="green-button margin-tb"
+          (click)="editIncome(element)"
+        >
+          Edit
+        </button>
+
+        <button
+          mat-button
+          class="red-button margin-tb"
+          (click)="deleteIncome(element)"
+        >
+          Delete
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+
+  <br *ngIf="dataSource !== null" />
+  <mat-divider *ngIf="dataSource !== null"></mat-divider>
+
+  <div class="centered-row" *ngIf="dataSource !== null">
+    <mat-card>
+      <mat-card-content> <h3>Total Income - 30000</h3></mat-card-content>
+    </mat-card>
+  </div>
+
+  <br *ngIf="expenseDataSource !== null" />
+  <mat-divider *ngIf="expenseDataSource !== null"></mat-divider>
+
+  <table
+    *ngIf="expenseDataSource !== null"
+    mat-table
+    [dataSource]="expenseDataSource"
+    class="mat-elevation-z8"
+  >
+    <ng-container matColumnDef="position">
+      <th mat-header-cell *matHeaderCellDef>No.</th>
+      <td mat-cell *matCellDef="let element">{{ element.position }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="value">
+      <th mat-header-cell *matHeaderCellDef>Value</th>
+      <td mat-cell *matCellDef="let element">{{ element.value }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let element">
+        <button
+          mat-button
+          class="green-button margin-tb"
+          (click)="editIncome(element)"
+        >
+          Edit
+        </button>
+
+        <button
+          mat-button
+          class="red-button margin-tb"
+          (click)="deleteIncome(element)"
+        >
+          Delete
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+
+  <br *ngIf="expenseDataSource !== null" />
+  <mat-divider *ngIf="expenseDataSource !== null"></mat-divider>
+
+  <div class="centered-row" *ngIf="expenseDataSource !== null">
+    <mat-card>
+      <mat-card-content>
+        <h3>Total Expense Budget - 30000</h3></mat-card-content
+      >
+    </mat-card>
+  </div>
+
+  <br *ngIf="savingsDataSource !== null" />
+  <mat-divider *ngIf="savingsDataSource !== null"></mat-divider>
+
+  <table
+    *ngIf="savingsDataSource !== null"
+    mat-table
+    [dataSource]="savingsDataSource"
+    class="mat-elevation-z8"
+  >
+    <ng-container matColumnDef="position">
+      <th mat-header-cell *matHeaderCellDef>No.</th>
+      <td mat-cell *matCellDef="let element">{{ element.position }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="value">
+      <th mat-header-cell *matHeaderCellDef>Value</th>
+      <td mat-cell *matCellDef="let element">{{ element.value }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let element">
+        <button
+          mat-button
+          class="green-button margin-tb"
+          (click)="editIncome(element)"
+        >
+          Edit
+        </button>
+
+        <button
+          mat-button
+          class="red-button margin-tb"
+          (click)="deleteIncome(element)"
+        >
+          Delete
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+
+  <br *ngIf="savingsDataSource !== null" />
+  <mat-divider *ngIf="savingsDataSource !== null"></mat-divider>
+
+  <div class="centered-row" *ngIf="savingsDataSource !== null">
+    <mat-card>
+      <mat-card-content> <h3>Total Savings - 30000</h3></mat-card-content>
+    </mat-card>
+  </div>
+
+  <div *ngIf="dataSource === null" class="centered-row margin-tb">
+    <mat-card>
+      <mat-card-content> No Income Data Available </mat-card-content>
+      <br />
+      <mat-card-content>
+        <button mat-raised-button class="green-button" (click)="addIncome()">
+          Add Income
+        </button>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div *ngIf="expenseDataSource === null" class="centered-row margin-tb">
+    <mat-card>
+      <mat-card-content> No Expense Budget Data Available </mat-card-content>
+      <br />
+      <mat-card-content>
+        <button
+          mat-raised-button
+          class="red-button"
+          (click)="addExpenseBudget()"
+        >
+          Add Expense Budget
+        </button>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div *ngIf="savingsDataSource === null" class="centered-row margin-tb">
+    <mat-card>
+      <mat-card-content> No Savings Data Available </mat-card-content>
+      <br />
+      <mat-card-content>
+        <button mat-raised-button class="yellow-button" (click)="addSavings()">
+          Add Savings
+        </button>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

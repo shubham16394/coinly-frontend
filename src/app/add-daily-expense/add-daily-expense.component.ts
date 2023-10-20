@@ -11,6 +11,7 @@ export class AddDailyExpenseComponent {
   expType: string = '';
   constructor(public dialogRef: MatDialogRef<AddDailyExpenseComponent>, @Inject(MAT_DIALOG_DATA) public data: DialogData) {
     console.log('data', data)
+    this.expType = data?.expType;
   }
 
   expensesType: Expenses[] = [
@@ -46,4 +47,5 @@ export interface DialogData {
   value: number;
   comment: string;
   date: Date;
+  expType: string;
 }

@@ -1,6 +1,6 @@
 <div class="border-dashboard">
   <div class="button-container">
-    <button mat-raised-button class="green-button">Go to Budget</button>
+    <button mat-raised-button class="green-button" (click)="gotoBudget()">Go to Budget</button>
     <mat-button-toggle-group
       appearance="legacy"
       name="fontStyle"
@@ -159,12 +159,12 @@
                 </div>
               </div>
               <div class="example-element-description">
-                <button mat-button class="green-button" (click)="edit(exp)">
+                <button mat-button class="green-button" (click)="editDaily(exp)">
                   Edit
                 </button>
                 <br />
                 <br />
-                <button mat-button class="red-button" (click)="delete(exp)">
+                <button mat-button class="red-button" (click)="deleteDaily(exp)">
                   Delete
                 </button>
               </div>
@@ -269,12 +269,12 @@
                 </div>
               </div>
               <div class="example-element-description">
-                <button mat-button class="green-button" (click)="edit(exp)">
+                <button mat-button class="green-button" (click)="editMonthly(exp, element?.time)">
                   Edit
                 </button>
                 <br />
                 <br />
-                <button mat-button class="red-button" (click)="delete(exp)">
+                <button mat-button class="red-button" (click)="deleteMonthly(exp)">
                   Delete
                 </button>
               </div>

@@ -1,4 +1,5 @@
 import { Component, OnInit, AfterViewInit  } from '@angular/core';
+import { Router } from '@angular/router';
 import {animate, state, style, transition, trigger} from '@angular/animations';
 import {MatDatepicker, MatDatepickerInputEvent} from '@angular/material/datepicker';
 import {MatTableDataSource} from '@angular/material/table';
@@ -36,7 +37,7 @@ export class DashboardComponent implements OnInit, AfterViewInit  {
   value!: number;
   comment!: string;
 
-  constructor(public dialog: MatDialog) {}
+  constructor(public dialog: MatDialog, private router: Router) {}
 
 
   ngOnInit() {}
@@ -64,12 +65,39 @@ export class DashboardComponent implements OnInit, AfterViewInit  {
     datepicker.close();
   }
 
-  edit(element: ExpensesData){
+  editDaily(element: any){
     console.log('edit element', element)
+    const dialogRef = this.dialog.open(AddDailyExpenseComponent, {
+      data: {value: element.expValue, comment: element.comment, date: element.expTime, expType: element.expType},
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      this.value = 0;
+      this.comment = '';
+      console.log('The daily dialog was closed', result);
+    });
   }
 
-  delete(element: ExpensesData){
+  deleteDaily(element: any){
     console.log('delete element', element)
+  }
+
+  editMonthly(element: any, time: Date) {
+    console.log('edit monthly', element)
+    const dialogRef = this.dialog.open(AddMonthlyExpenseComponent, {
+      data: {value: element.expValue, comment: element.comment, date: time, expType: element.expType},
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      this.value = 0;
+      this.comment = '';
+      console.log('The monthly dialog was closed', this.value, this.comment, result);
+
+    });
+  }
+
+  deleteMonthly(element: any) {
+
   }
 
   openAddDailyExpenseDialog(): void {
@@ -97,6 +125,11 @@ export class DashboardComponent implements OnInit, AfterViewInit  {
     });
   }
 
+  gotoBudget(){
+    console.log('budget route')
+    this.router.navigate(['budget'])
+  }
+
 
 }
 
@@ -110,7 +143,7 @@ type columnDataMapType = {
 export interface ExpensesData {
   time: Date,
   value: number;
-  expenses: {expType: string, expValue: number, expTime: Date}[]
+  expenses: {expType: string, expValue: number, expTime: Date, comment: string}[]
 }
 
 const ELEMENT_DATA: ExpensesData[] = [
@@ -120,12 +153,14 @@ const ELEMENT_DATA: ExpensesData[] = [
     expenses: [{
       expType: 'grocery',
       expValue: 1000,
-      expTime: new Date()
+      expTime: new Date(),
+      comment: "test"
     },
     {
       expType: 'Vehicle',
       expValue: 1000,
-      expTime: new Date()
+      expTime: new Date(),
+      comment: "test"
     }
   ]
   },
@@ -135,7 +170,8 @@ const ELEMENT_DATA: ExpensesData[] = [
     expenses: [{
       expType: 'grocery',
       expValue: 1000,
-      expTime: new Date()
+      expTime: new Date(),
+      comment: "test"
     }]
 
   },
@@ -145,7 +181,8 @@ const ELEMENT_DATA: ExpensesData[] = [
     expenses: [{
       expType: 'grocery',
       expValue: 1000,
-      expTime: new Date()
+      expTime: new Date(),
+      comment: "test"
     }]
 
   },
@@ -155,7 +192,8 @@ const ELEMENT_DATA: ExpensesData[] = [
     expenses: [{
       expType: 'grocery',
       expValue: 1000,
-      expTime: new Date()
+      expTime: new Date(),
+      comment: "test"
     }]
 
   },
@@ -165,7 +203,8 @@ const ELEMENT_DATA: ExpensesData[] = [
     expenses: [{
       expType: 'grocery',
       expValue: 1000,
-      expTime: new Date()
+      expTime: new Date(),
+      comment: "test"
     }]
 
   },
@@ -175,7 +214,8 @@ const ELEMENT_DATA: ExpensesData[] = [
     expenses: [{
       expType: 'grocery',
       expValue: 1000,
-      expTime: new Date()
+      expTime: new Date(),
+      comment: "test"
     }]
 
   },
@@ -185,7 +225,8 @@ const ELEMENT_DATA: ExpensesData[] = [
     expenses: [{
       expType: 'grocery',
       expValue: 1000,
-      expTime: new Date()
+      expTime: new Date(),
+      comment: "test"
     }]
 
   },
@@ -195,7 +236,8 @@ const ELEMENT_DATA: ExpensesData[] = [
     expenses: [{
       expType: 'grocery',
       expValue: 1000,
-      expTime: new Date()
+      expTime: new Date(),
+      comment: "test"
     }]
 
   },
@@ -205,7 +247,8 @@ const ELEMENT_DATA: ExpensesData[] = [
     expenses: [{
       expType: 'grocery',
       expValue: 1000,
-      expTime: new Date()
+      expTime: new Date(),
+      comment: "test"
     }]
 
   },
@@ -215,7 +258,8 @@ const ELEMENT_DATA: ExpensesData[] = [
     expenses: [{
       expType: 'grocery',
       expValue: 1000,
-      expTime: new Date()
+      expTime: new Date(),
+      comment: "test"
     }]
   },
 ];

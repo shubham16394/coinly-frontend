@@ -42,3 +42,22 @@ body {
 .red-button {
     background-color: #E83B46 !important; 
 }
+
+.yellow-button {
+  background-color: #FACF3B !important; 
+}
+
+.button-container-nospace {
+  display: flex;
+  justify-content: center;
+  margin-top: 5px;
+}
+
+.margin-tb {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.margin-l {
+  margin-left: 10px;
+}
