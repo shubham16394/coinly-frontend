@@ -7,6 +7,7 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
+import { LoginService } from './login.service';
 
 @Component({
   selector: 'app-login',
@@ -17,7 +18,7 @@ export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   errorsCount: boolean = true;
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private fb: FormBuilder, private loginService: LoginService) {}
 
   ngOnInit() {
     this.loginForm = this.fb.group(
@@ -36,6 +37,10 @@ export class LoginComponent implements OnInit {
 
   login() { 
     console.log(this.loginForm.value)
+    this.loginService.login(this.loginForm).subscribe(data => {
+      console.log('data', data)
+    })
+
   }
 
   enableLogin = (group: FormGroup): ValidationErrors | null => {

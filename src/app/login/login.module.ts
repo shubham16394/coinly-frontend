@@ -9,6 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { RouterModule } from '@angular/router';
+import { HttpClientModule } from '@angular/common/http';
+import { LoginService } from './login.service';
 
 
 
@@ -25,10 +27,12 @@ import { RouterModule } from '@angular/router';
     MatIconModule,
     MatButtonModule,
     MatDividerModule,
-    RouterModule
+    RouterModule,
+    HttpClientModule
   ],
   exports: [
     LoginComponent
-  ]
+  ],
+  providers: [LoginService]
 })
 export class LoginModule { }
