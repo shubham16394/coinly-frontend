@@ -15,6 +15,7 @@ import { FormsModule } from '@angular/forms';
 import {MatTableModule} from '@angular/material/table';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatDialogModule} from '@angular/material/dialog';
+import { DashboardService } from './dashboard.service';
 
 @NgModule({
   declarations: [
@@ -37,6 +38,7 @@ import {MatDialogModule} from '@angular/material/dialog';
     MatChipsModule,
     MatDialogModule
   ],
-  exports: [DashboardComponent]
+  exports: [DashboardComponent],
+  providers: [DashboardService]
 })
 export class DashboardModule { }

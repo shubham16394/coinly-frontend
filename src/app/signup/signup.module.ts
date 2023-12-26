@@ -10,6 +10,7 @@ import {MatDividerModule} from '@angular/material/divider';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MatListModule } from '@angular/material/list';
+import { SignupService } from './signup.service';
 
 
 
@@ -31,6 +32,9 @@ import { MatListModule } from '@angular/material/list';
   ],
   exports: [
     SignupComponent
+  ],
+  providers: [
+    SignupService
   ]
 })
 export class SignupModule { }

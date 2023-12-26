@@ -33,8 +33,9 @@ export class AddMonthlyExpenseComponent {
     this.dialogRef.close();
   }
 
-  addMonthlyExpense(data: DialogData): void {
-    console.log('data', data, this.expType)
+  addMonthlyExpense(data: DialogData) {
+    data.expType = this.expType;
+    return data;
   }
 
 }

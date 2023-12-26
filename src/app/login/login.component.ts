@@ -7,6 +7,7 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
+import { Router } from '@angular/router';
 import { LoginService } from './login.service';
 
 @Component({
@@ -18,7 +19,7 @@ export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   errorsCount: boolean = true;
 
-  constructor(private fb: FormBuilder, private loginService: LoginService) {}
+  constructor(private fb: FormBuilder, private loginService: LoginService, private router: Router) {}
 
   ngOnInit() {
     this.loginForm = this.fb.group(
@@ -38,7 +39,8 @@ export class LoginComponent implements OnInit {
   login() { 
     console.log(this.loginForm.value)
     this.loginService.login(this.loginForm).subscribe(data => {
-      console.log('data', data)
+      console.log('Login response', data);
+      this.router.navigate(['/dashboard'], { replaceUrl: true });
     })
 
   }

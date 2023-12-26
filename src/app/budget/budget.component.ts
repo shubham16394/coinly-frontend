@@ -58,9 +58,11 @@ export interface PeriodicElement {
   actions: string;
 }
 
-const ELEMENT_DATA: PeriodicElement[] = [
-  {position: 1, name: 'Hydrogen', value: 1.0079, actions: 'H'},
-  {position: 2, name: 'Helium', value: 4.0026, actions: 'He'},
-  {position: 3, name: 'Lithium', value: 6.941, actions: 'Li'},
-];
+// const ELEMENT_DATA: PeriodicElement[] = [
+//   {position: 1, name: 'Hydrogen', value: 1.0079, actions: 'H'},
+//   {position: 2, name: 'Helium', value: 4.0026, actions: 'He'},
+//   {position: 3, name: 'Lithium', value: 6.941, actions: 'Li'},
+// ];
+
+const ELEMENT_DATA = null;
 

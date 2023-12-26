@@ -11,7 +11,7 @@
     </mat-form-field>
     <mat-form-field>
       <mat-label>Expense Value (₹)</mat-label>
-      <input matInput [(ngModel)]="data.value" />
+      <input matInput type="number" [(ngModel)]="data.value" />
     </mat-form-field>
     <mat-form-field>
       <mat-label>Comment</mat-label>
@@ -24,7 +24,7 @@
   <button
     mat-button
     mat-dialog-close
-    (click)="addDailyExpense(data)"
+    [mat-dialog-close]="addDailyExpense(data)"
     cdkFocusInitial
   >
     Add

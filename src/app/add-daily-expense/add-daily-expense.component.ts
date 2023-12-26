@@ -10,8 +10,7 @@ export class AddDailyExpenseComponent {
 
   expType: string = '';
   constructor(public dialogRef: MatDialogRef<AddDailyExpenseComponent>, @Inject(MAT_DIALOG_DATA) public data: DialogData) {
-    console.log('data', data)
-    this.expType = data?.expType;
+    this.expType = data?.type;
   }
 
   expensesType: Expenses[] = [
@@ -33,8 +32,9 @@ export class AddDailyExpenseComponent {
     this.dialogRef.close();
   }
 
-  addDailyExpense(data: DialogData): void {
-    console.log('data', data, this.expType)
+  addDailyExpense(data: DialogData) {
+    data.type = this.expType;
+    return data;
   }
 }
 
@@ -47,5 +47,5 @@ export interface DialogData {
   value: number;
   comment: string;
   date: Date;
-  expType: string;
+  type: string;
 }

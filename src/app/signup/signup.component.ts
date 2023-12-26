@@ -7,6 +7,8 @@ import {
   ValidationErrors,
   AbstractControlOptions,
 } from '@angular/forms';
+import { Router } from '@angular/router';
+import { SignupService } from './signup.service';
 
 @Component({
   selector: 'app-signup',
@@ -17,7 +19,7 @@ export class SignupComponent implements OnInit {
   signupForm!: FormGroup;
   errorsCount: boolean = true;
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private fb: FormBuilder, private signupService: SignupService, private router: Router) {}
 
   ngOnInit() {
     this.signupForm = this.fb.group(
@@ -47,6 +49,10 @@ export class SignupComponent implements OnInit {
 
   signUp() {
     console.log(this.signupForm.value);
+    this.signupService.signup(this.signupForm).subscribe(data => {
+      console.log('Signup response', data);
+      this.router.navigate([''], { replaceUrl: true });
+    })
   }
 
   checkPassoword = (group: FormGroup): ValidationErrors | null => {

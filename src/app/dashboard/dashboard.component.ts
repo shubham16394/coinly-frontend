@@ -7,7 +7,7 @@ import {MatDialog} from '@angular/material/dialog';
 import { AddDailyExpenseComponent } from '../add-daily-expense/add-daily-expense.component';
 import * as moment from 'moment';
 import { AddMonthlyExpenseComponent } from '../add-monthly-expense/add-monthly-expense.component';
-
+import { DashboardService } from './dashboard.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -34,10 +34,12 @@ export class DashboardComponent implements OnInit, AfterViewInit  {
   dataSource = new MatTableDataSource(ELEMENT_DATA);
   columnsToDisplayWithExpand = [...this.columnsToDisplay, 'expand'];
   expandedElement!: ExpensesData | null;
-  value!: number;
-  comment!: string;
+  value: number = 0;
+  comment: string = '';
+  expType: string = '';
+  email = 'shubham16394@gmail.com';
 
-  constructor(public dialog: MatDialog, private router: Router) {}
+  constructor(public dialog: MatDialog, private router: Router, private dashboardService: DashboardService) {}
 
 
   ngOnInit() {}
@@ -68,7 +70,7 @@ export class DashboardComponent implements OnInit, AfterViewInit  {
   editDaily(element: any){
     console.log('edit element', element)
     const dialogRef = this.dialog.open(AddDailyExpenseComponent, {
-      data: {value: element.expValue, comment: element.comment, date: element.expTime, expType: element.expType},
+      data: {value: element.expValue, comment: element.comment, date: element.expTime, type: element.type},
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -85,7 +87,7 @@ export class DashboardComponent implements OnInit, AfterViewInit  {
   editMonthly(element: any, time: Date) {
     console.log('edit monthly', element)
     const dialogRef = this.dialog.open(AddMonthlyExpenseComponent, {
-      data: {value: element.expValue, comment: element.comment, date: time, expType: element.expType},
+      data: {value: element.expValue, comment: element.comment, date: time, type: element.type},
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -102,13 +104,18 @@ export class DashboardComponent implements OnInit, AfterViewInit  {
 
   openAddDailyExpenseDialog(): void {
     const dialogRef = this.dialog.open(AddDailyExpenseComponent, {
-      data: {value: this.value, comment: this.comment, date: this.date},
+      data: {value: this.value, comment: this.comment, date: this.date, type: this.expType},
     });
 
     dialogRef.afterClosed().subscribe(result => {
       this.value = 0;
       this.comment = '';
       console.log('The daily dialog was closed', result);
+      if(result?.value){
+        this.dashboardService.addExpense(this.email, this.date.toISOString(), result).subscribe(res => {
+          console.log('addexpense response', res);
+        });  
+      }
     });
   }
 
@@ -143,7 +150,7 @@ type columnDataMapType = {
 export interface ExpensesData {
   time: Date,
   value: number;
-  expenses: {expType: string, expValue: number, expTime: Date, comment: string}[]
+  expenses: {type: string, expValue: number, expTime: Date, comment: string}[]
 }
 
 const ELEMENT_DATA: ExpensesData[] = [
@@ -151,13 +158,13 @@ const ELEMENT_DATA: ExpensesData[] = [
     time: new Date(),
     value: 1.0079,
     expenses: [{
-      expType: 'grocery',
+      type: 'grocery',
       expValue: 1000,
       expTime: new Date(),
       comment: "test"
     },
     {
-      expType: 'Vehicle',
+      type: 'Vehicle',
       expValue: 1000,
       expTime: new Date(),
       comment: "test"
@@ -168,7 +175,7 @@ const ELEMENT_DATA: ExpensesData[] = [
     time: new Date(),
     value: 4.0026,
     expenses: [{
-      expType: 'grocery',
+      type: 'grocery',
       expValue: 1000,
       expTime: new Date(),
       comment: "test"
@@ -179,7 +186,7 @@ const ELEMENT_DATA: ExpensesData[] = [
     time: new Date(),
     value: 6.941,
     expenses: [{
-      expType: 'grocery',
+      type: 'grocery',
       expValue: 1000,
       expTime: new Date(),
       comment: "test"
@@ -190,7 +197,7 @@ const ELEMENT_DATA: ExpensesData[] = [
     time: new Date(),
     value: 9.0122,
     expenses: [{
-      expType: 'grocery',
+      type: 'grocery',
       expValue: 1000,
       expTime: new Date(),
       comment: "test"
@@ -201,7 +208,7 @@ const ELEMENT_DATA: ExpensesData[] = [
     time: new Date(),
     value: 10.811,
     expenses: [{
-      expType: 'grocery',
+      type: 'grocery',
       expValue: 1000,
       expTime: new Date(),
       comment: "test"
@@ -212,7 +219,7 @@ const ELEMENT_DATA: ExpensesData[] = [
     time: new Date(),
     value: 12.0107,
     expenses: [{
-      expType: 'grocery',
+      type: 'grocery',
       expValue: 1000,
       expTime: new Date(),
       comment: "test"
@@ -223,7 +230,7 @@ const ELEMENT_DATA: ExpensesData[] = [
     time: new Date(),
     value: 14.0067,
     expenses: [{
-      expType: 'grocery',
+      type: 'grocery',
       expValue: 1000,
       expTime: new Date(),
       comment: "test"
@@ -234,7 +241,7 @@ const ELEMENT_DATA: ExpensesData[] = [
     time: new Date(),
     value: 15.9994,
     expenses: [{
-      expType: 'grocery',
+      type: 'grocery',
       expValue: 1000,
       expTime: new Date(),
       comment: "test"
@@ -245,7 +252,7 @@ const ELEMENT_DATA: ExpensesData[] = [
     time: new Date(),
     value: 18.9984,
     expenses: [{
-      expType: 'grocery',
+      type: 'grocery',
       expValue: 1000,
       expTime: new Date(),
       comment: "test"
@@ -256,7 +263,7 @@ const ELEMENT_DATA: ExpensesData[] = [
     time: new Date(),
     value: 20.1797,
     expenses: [{
-      expType: 'grocery',
+      type: 'grocery',
       expValue: 1000,
       expTime: new Date(),
       comment: "test"
