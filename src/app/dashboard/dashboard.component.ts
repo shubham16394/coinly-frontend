@@ -42,9 +42,45 @@ export class DashboardComponent implements OnInit, AfterViewInit  {
   constructor(public dialog: MatDialog, private router: Router, private dashboardService: DashboardService) {}
 
 
-  ngOnInit() {}
+  ngOnInit() {
+  }
 
   ngAfterViewInit(): void {
+    this.getAllExpData();
+  }
+
+  getAllExpData() {
+    this.dashboardService.getAllExpenses(this.email, this.date.toISOString(), this.timeFilter).subscribe((res: any) => {
+      const data = res?.data;
+      console.log('getAllExpenses data', data);
+      this.prepareData(data);
+    });
+  }
+
+  prepareData(data: any) {
+    const formattedData = [];
+    let uniqHrs = data.map((e: any) => { 
+      let hr: string | number = new Date(e?.createdAt).getHours();
+      const ampm = hr > 12 ? 'PM' : 'AM';
+      hr = hr < 10 ? ('0' + hr) : hr;
+      return hr + ':00 ' + ampm;
+    });
+    uniqHrs = new Set(uniqHrs);
+    console.log(uniqHrs);
+    for(let h of uniqHrs){
+      const filterData = data.filter((e1: any) => {
+        return new Date(e1?.createdAt).getHours() == Number(h.split(':')[0]);
+      })
+      .map((e: any) => {
+        return {type: e?.type, expValue: e?.value, expTime: e?.createdAt, comment: e?.comment, _id: e?._id, createdBy: e?.createdBy};
+      });
+      console.log('filterData', filterData);
+      const totalValue = filterData.reduce((acc: any, curr: any) => { return acc + curr?.expValue; }, 0);
+      console.log('totalValue', totalValue);
+      formattedData.push({time: h, value: totalValue, expenses: filterData});
+    }
+    console.log("formattedData", formattedData)
+    this.dataSource.data = formattedData;
     
   }
 
@@ -55,6 +91,7 @@ export class DashboardComponent implements OnInit, AfterViewInit  {
     else if(time === 'monthly'){
       this.timeFilter = 'monthly';
     }
+    this.getAllExpData();
   }
 
   changeDate(event: MatDatepickerInputEvent<Date>) {
@@ -150,7 +187,7 @@ type columnDataMapType = {
 export interface ExpensesData {
   time: Date,
   value: number;
-  expenses: {type: string, expValue: number, expTime: Date, comment: string}[]
+  expenses: {type: string, expValue: number, expTime: Date, comment: string, _id: string, createdBy: string}[]
 }
 
 const ELEMENT_DATA: ExpensesData[] = [
@@ -161,13 +198,17 @@ const ELEMENT_DATA: ExpensesData[] = [
       type: 'grocery',
       expValue: 1000,
       expTime: new Date(),
-      comment: "test"
+      comment: "test",
+      _id: '',
+      createdBy: ''
     },
     {
       type: 'Vehicle',
       expValue: 1000,
       expTime: new Date(),
-      comment: "test"
+      comment: "test",
+      _id: '',
+      createdBy: ''
     }
   ]
   },
@@ -178,7 +219,9 @@ const ELEMENT_DATA: ExpensesData[] = [
       type: 'grocery',
       expValue: 1000,
       expTime: new Date(),
-      comment: "test"
+      comment: "test",
+      _id: '',
+      createdBy: ''
     }]
 
   },
@@ -189,7 +232,9 @@ const ELEMENT_DATA: ExpensesData[] = [
       type: 'grocery',
       expValue: 1000,
       expTime: new Date(),
-      comment: "test"
+      comment: "test",
+      _id: '',
+      createdBy: ''
     }]
 
   },
@@ -200,7 +245,9 @@ const ELEMENT_DATA: ExpensesData[] = [
       type: 'grocery',
       expValue: 1000,
       expTime: new Date(),
-      comment: "test"
+      comment: "test",
+      _id: '',
+      createdBy: ''
     }]
 
   },
@@ -211,7 +258,9 @@ const ELEMENT_DATA: ExpensesData[] = [
       type: 'grocery',
       expValue: 1000,
       expTime: new Date(),
-      comment: "test"
+      comment: "test",
+      _id: '',
+      createdBy: ''
     }]
 
   },
@@ -222,7 +271,9 @@ const ELEMENT_DATA: ExpensesData[] = [
       type: 'grocery',
       expValue: 1000,
       expTime: new Date(),
-      comment: "test"
+      comment: "test",
+      _id: '',
+      createdBy: ''
     }]
 
   },
@@ -233,7 +284,9 @@ const ELEMENT_DATA: ExpensesData[] = [
       type: 'grocery',
       expValue: 1000,
       expTime: new Date(),
-      comment: "test"
+      comment: "test",
+      _id: '',
+      createdBy: ''
     }]
 
   },
@@ -244,7 +297,9 @@ const ELEMENT_DATA: ExpensesData[] = [
       type: 'grocery',
       expValue: 1000,
       expTime: new Date(),
-      comment: "test"
+      comment: "test",
+      _id: '',
+      createdBy: ''
     }]
 
   },
@@ -255,7 +310,9 @@ const ELEMENT_DATA: ExpensesData[] = [
       type: 'grocery',
       expValue: 1000,
       expTime: new Date(),
-      comment: "test"
+      comment: "test",
+      _id: '',
+      createdBy: ''
     }]
 
   },
@@ -266,7 +323,9 @@ const ELEMENT_DATA: ExpensesData[] = [
       type: 'grocery',
       expValue: 1000,
       expTime: new Date(),
-      comment: "test"
+      comment: "test",
+      _id: '',
+      createdBy: ''
     }]
   },
 ];

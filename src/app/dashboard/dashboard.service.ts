@@ -15,5 +15,8 @@ export class DashboardService {
         return this.http.post(`${this.url}/expense/${email}/${date}/addexpense`, expBody);
     }
 
+    getAllExpenses(email: string, date: string, dateType: string) {
+        return this.http.get(`${this.url}/expense/${email}/${date}/${dateType}/getexpdata`);
+    }
 
 }
