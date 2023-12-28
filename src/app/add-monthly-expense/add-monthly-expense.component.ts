@@ -10,7 +10,7 @@ export class AddMonthlyExpenseComponent {
 
   expType: string = '';
   constructor(public dialogRef: MatDialogRef<AddMonthlyExpenseComponent>, @Inject(MAT_DIALOG_DATA) public data: DialogData) {
-    this.expType = data?.expType;
+    this.expType = data?.type;
   }
 
   expensesType: Expenses[] = [
@@ -34,7 +34,7 @@ export class AddMonthlyExpenseComponent {
   }
 
   addMonthlyExpense(data: DialogData) {
-    data.expType = this.expType;
+    data.type = this.expType;
     return data;
   }
 
@@ -49,5 +49,5 @@ export interface DialogData {
   value: number;
   comment: string;
   date: Date;
-  expType: string;
+  type: string;
 }

@@ -46,30 +46,43 @@ export class DashboardComponent implements OnInit, AfterViewInit  {
   }
 
   ngAfterViewInit(): void {
-    this.getAllExpData();
+    this.getAllExpData(this.timeFilter);
   }
 
-  getAllExpData() {
+  getAllExpData(timeFilter: string) {
     this.dashboardService.getAllExpenses(this.email, this.date.toISOString(), this.timeFilter).subscribe((res: any) => {
       const data = res?.data;
       console.log('getAllExpenses data', data);
-      this.prepareData(data);
+      this.prepareData(data, timeFilter);
     });
   }
 
-  prepareData(data: any) {
+  prepareData(data: any, timeFilter: string) {
     const formattedData = [];
     let uniqHrs = data.map((e: any) => { 
-      let hr: string | number = new Date(e?.createdAt).getHours();
-      const ampm = hr > 12 ? 'PM' : 'AM';
-      hr = hr < 10 ? ('0' + hr) : hr;
-      return hr + ':00 ' + ampm;
+      let hr: any;
+      if(timeFilter === 'daily') {
+        const hrVal = new Date(e?.createdAt).getHours();
+        hr = new Date(e?.createdAt).setHours(hrVal,0,0,0);
+      }
+      else if(timeFilter === 'monthly') {
+        hr = new Date(e?.createdAt).setHours(0,0,0,0);
+      }
+      return new Date(hr).toISOString();
     });
     uniqHrs = new Set(uniqHrs);
     console.log(uniqHrs);
-    for(let h of uniqHrs){
+    for(let h of uniqHrs) {
+      console.log('h', h)
       const filterData = data.filter((e1: any) => {
-        return new Date(e1?.createdAt).getHours() == Number(h.split(':')[0]);
+        let hrVal: any;
+        if(timeFilter === 'daily') {
+          hrVal = new Date(e1?.createdAt).getHours();
+        }
+        else if(timeFilter === 'monthly') {
+          hrVal = 0;
+        }
+        return new Date(new Date(e1?.createdAt).setHours(hrVal,0,0,0)).toISOString() == h;
       })
       .map((e: any) => {
         return {type: e?.type, expValue: e?.value, expTime: e?.createdAt, comment: e?.comment, _id: e?._id, createdBy: e?.createdBy};
@@ -77,11 +90,37 @@ export class DashboardComponent implements OnInit, AfterViewInit  {
       console.log('filterData', filterData);
       const totalValue = filterData.reduce((acc: any, curr: any) => { return acc + curr?.expValue; }, 0);
       console.log('totalValue', totalValue);
-      formattedData.push({time: h, value: totalValue, expenses: filterData});
+      formattedData.push({time: h, value: totalValue, expenses: this.sortData(filterData, 'expTime')});
     }
     console.log("formattedData", formattedData)
-    this.dataSource.data = formattedData;
-    
+    this.dataSource.data = this.sortData(formattedData, 'time');
+  }
+
+  sortData(data: any, time: string) {
+    return data.sort((a: any,b: any) => {return new Date(a?.[time]).getTime() - new Date(b?.[time]).getTime()});
+  }
+
+  addExpenseToData(data: any, timeFilter: string) {
+    const dataSourceData = this.dataSource.data;
+    console.log('dataSourceData', dataSourceData);
+    let hr: number;
+    if(timeFilter === 'daily') {
+      const hrVal = new Date(data?.createdAt).getHours();
+      hr = new Date(data?.createdAt).setHours(hrVal,0,0,0);
+    }
+    else {
+      hr = new Date(data?.createdAt).setHours(0,0,0,0);
+    }
+    let actDataIndex = dataSourceData.findIndex((e: any) => {return new Date(hr).toISOString() == e?.time});
+    console.log('actDataIndex', actDataIndex, dataSourceData[actDataIndex]);
+    if(actDataIndex < 0) {
+      dataSourceData.push({time: new Date(hr).toISOString(), value: 0, expenses: []});
+      actDataIndex = dataSourceData.length - 1;
+    }
+    dataSourceData[actDataIndex]?.expenses.push({type: data?.type, expValue: data?.value, expTime: data?.createdAt, comment: data?.comment, _id: data?._id, createdBy: data?.createdBy});
+    dataSourceData[actDataIndex].value +=  data?.value;
+    console.log('dataSourceData updated', dataSourceData);
+    this.dataSource.data = dataSourceData;
   }
 
   timeFilterChange(time: string) {
@@ -91,7 +130,7 @@ export class DashboardComponent implements OnInit, AfterViewInit  {
     else if(time === 'monthly'){
       this.timeFilter = 'monthly';
     }
-    this.getAllExpData();
+    this.getAllExpData(this.timeFilter);
   }
 
   changeDate(event: MatDatepickerInputEvent<Date>) {
@@ -148,9 +187,10 @@ export class DashboardComponent implements OnInit, AfterViewInit  {
       this.value = 0;
       this.comment = '';
       console.log('The daily dialog was closed', result);
-      if(result?.value){
-        this.dashboardService.addExpense(this.email, this.date.toISOString(), result).subscribe(res => {
+      if(result?.value && result?.type && result?.date){
+        this.dashboardService.addExpense(this.email, this.date.toISOString(), result).subscribe((res: any) => {
           console.log('addexpense response', res);
+          this.addExpenseToData(res?.data, this.timeFilter);
         });  
       }
     });
@@ -164,8 +204,13 @@ export class DashboardComponent implements OnInit, AfterViewInit  {
     dialogRef.afterClosed().subscribe(result => {
       this.value = 0;
       this.comment = '';
-      console.log('The monthly dialog was closed', this.value, this.comment, result);
-
+      console.log('The monthly dialog was closed', this.value, this.comment, result, this.date.toISOString());
+      if(result?.value && result?.type && result?.date){
+        this.dashboardService.addExpense(this.email, result?.date, result).subscribe((res: any) => {
+          console.log('add monthly expense response', res);
+          this.addExpenseToData(res?.data, this.timeFilter);
+        });    
+      }
     });
   }
 
@@ -185,147 +230,9 @@ type columnDataMapType = {
 
 
 export interface ExpensesData {
-  time: Date,
+  time: Date | string,
   value: number;
   expenses: {type: string, expValue: number, expTime: Date, comment: string, _id: string, createdBy: string}[]
 }
 
-const ELEMENT_DATA: ExpensesData[] = [
-  {
-    time: new Date(),
-    value: 1.0079,
-    expenses: [{
-      type: 'grocery',
-      expValue: 1000,
-      expTime: new Date(),
-      comment: "test",
-      _id: '',
-      createdBy: ''
-    },
-    {
-      type: 'Vehicle',
-      expValue: 1000,
-      expTime: new Date(),
-      comment: "test",
-      _id: '',
-      createdBy: ''
-    }
-  ]
-  },
-  {
-    time: new Date(),
-    value: 4.0026,
-    expenses: [{
-      type: 'grocery',
-      expValue: 1000,
-      expTime: new Date(),
-      comment: "test",
-      _id: '',
-      createdBy: ''
-    }]
-
-  },
-  {
-    time: new Date(),
-    value: 6.941,
-    expenses: [{
-      type: 'grocery',
-      expValue: 1000,
-      expTime: new Date(),
-      comment: "test",
-      _id: '',
-      createdBy: ''
-    }]
-
-  },
-  {
-    time: new Date(),
-    value: 9.0122,
-    expenses: [{
-      type: 'grocery',
-      expValue: 1000,
-      expTime: new Date(),
-      comment: "test",
-      _id: '',
-      createdBy: ''
-    }]
-
-  },
-  {
-    time: new Date(),
-    value: 10.811,
-    expenses: [{
-      type: 'grocery',
-      expValue: 1000,
-      expTime: new Date(),
-      comment: "test",
-      _id: '',
-      createdBy: ''
-    }]
-
-  },
-  {
-    time: new Date(),
-    value: 12.0107,
-    expenses: [{
-      type: 'grocery',
-      expValue: 1000,
-      expTime: new Date(),
-      comment: "test",
-      _id: '',
-      createdBy: ''
-    }]
-
-  },
-  {
-    time: new Date(),
-    value: 14.0067,
-    expenses: [{
-      type: 'grocery',
-      expValue: 1000,
-      expTime: new Date(),
-      comment: "test",
-      _id: '',
-      createdBy: ''
-    }]
-
-  },
-  {
-    time: new Date(),
-    value: 15.9994,
-    expenses: [{
-      type: 'grocery',
-      expValue: 1000,
-      expTime: new Date(),
-      comment: "test",
-      _id: '',
-      createdBy: ''
-    }]
-
-  },
-  {
-    time: new Date(),
-    value: 18.9984,
-    expenses: [{
-      type: 'grocery',
-      expValue: 1000,
-      expTime: new Date(),
-      comment: "test",
-      _id: '',
-      createdBy: ''
-    }]
-
-  },
-  {
-    time: new Date(),
-    value: 20.1797,
-    expenses: [{
-      type: 'grocery',
-      expValue: 1000,
-      expTime: new Date(),
-      comment: "test",
-      _id: '',
-      createdBy: ''
-    }]
-  },
-];
+const ELEMENT_DATA: ExpensesData[] = [];
