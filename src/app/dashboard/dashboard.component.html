@@ -200,17 +200,17 @@
     >
       <ng-container
         matColumnDef="{{ column }}"
-        *ngFor="let column of columnsToDisplay"
+        *ngFor="let column of columnsToDisplayMonthly"
       >
         <th mat-header-cell *matHeaderCellDef>{{ column }}</th>
-        <ng-container *ngIf="column === 'Time'">
+        <ng-container *ngIf="column === 'Date'">
           <td mat-cell *matCellDef="let element">
-            {{ element[columnDataMap[column]] | date : "dd-MM-yyyy" }}
+            {{ element[monthlyColumnDataMap[column]] | date : "dd-MM-yyyy" }}
           </td>
         </ng-container>
-        <ng-container *ngIf="column !== 'Time'">
+        <ng-container *ngIf="column !== 'Date'">
           <td mat-cell *matCellDef="let element">
-            {{ element[columnDataMap[column]] }} ₹
+            {{ element[monthlyColumnDataMap[column]] }} ₹
           </td>
         </ng-container>
       </ng-container>
@@ -242,7 +242,7 @@
         <td
           mat-cell
           *matCellDef="let element"
-          [attr.colspan]="columnsToDisplayWithExpand.length"
+          [attr.colspan]="columnsToDisplayMonthlyWithExpand.length"
         >
           <div
             class="centered-row"
@@ -289,10 +289,10 @@
         </td>
       </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="columnsToDisplayWithExpand"></tr>
+      <tr mat-header-row *matHeaderRowDef="columnsToDisplayMonthlyWithExpand"></tr>
       <tr
         mat-row
-        *matRowDef="let element; columns: columnsToDisplayWithExpand"
+        *matRowDef="let element; columns: columnsToDisplayMonthlyWithExpand"
         class="example-element-row"
         [class.example-expanded-row]="expandedElement === element"
         (click)="expandedElement = expandedElement === element ? null : element"

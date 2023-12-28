@@ -19,4 +19,12 @@ export class DashboardService {
         return this.http.get(`${this.url}/expense/${email}/${date}/${dateType}/getexpdata`);
     }
 
+    editExpense(expId: string, expBody: object) {
+        return this.http.put(`${this.url}/expense/${expId}/editexp`, expBody);
+    }
+
+    deleteExpense(expId: string) {
+        return this.http.delete(`${this.url}/expense/${expId}/deleteexp`);
+    }
+
 }
