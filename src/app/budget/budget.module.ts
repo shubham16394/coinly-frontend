@@ -8,6 +8,7 @@ import { MatCardModule } from '@angular/material/card';
 import {MatTableModule} from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import {MatDividerModule} from '@angular/material/divider';
+import { BudgetService } from './budget.service';
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import {MatDividerModule} from '@angular/material/divider';
   ],
   exports: [
     BudgetComponent
-  ]
+  ],
+  providers: [BudgetService]
 })
 export class BudgetModule { }

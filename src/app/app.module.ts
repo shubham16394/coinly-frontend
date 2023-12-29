@@ -24,13 +24,15 @@ import {MatDialogModule} from '@angular/material/dialog';
 import { AddMonthlyExpenseComponent } from './add-monthly-expense/add-monthly-expense.component';
 import {MatSelectModule} from '@angular/material/select';
 import { BudgetModule } from './budget/budget.module';
+import { AddBudgetComponent } from './add-budget/add-budget.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     AppNavComponent,
     AddDailyExpenseComponent,
-    AddMonthlyExpenseComponent
+    AddMonthlyExpenseComponent,
+    AddBudgetComponent
   ],
   imports: [
     BrowserModule,

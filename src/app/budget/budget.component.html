@@ -25,8 +25,21 @@
     </div>
   </div>
 
+
+  <div class="centered-row margin-tb">
+    <mat-card>
+      <mat-card-content *ngIf="dataSource?.data?.length === 0"> No Income Data Available </mat-card-content>
+      <br *ngIf="dataSource?.data?.length === 0"/>
+      <mat-card-content>
+        <button mat-raised-button class="green-button" (click)="add('income')">
+          Add Income
+        </button>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
   <table
-    *ngIf="dataSource !== null"
+    *ngIf="dataSource?.data && dataSource?.data?.length"
     mat-table
     [dataSource]="dataSource"
     class="mat-elevation-z8"
@@ -43,7 +56,7 @@
 
     <ng-container matColumnDef="value">
       <th mat-header-cell *matHeaderCellDef>Value</th>
-      <td mat-cell *matCellDef="let element">{{ element.value }}</td>
+      <td mat-cell *matCellDef="let element">{{ element.value }} ₹</td>
     </ng-container>
 
     <ng-container matColumnDef="actions">
@@ -52,7 +65,7 @@
         <button
           mat-button
           class="green-button margin-tb"
-          (click)="editIncome(element)"
+          (click)="edit(element, 'income')"
         >
           Edit
         </button>
@@ -60,7 +73,7 @@
         <button
           mat-button
           class="red-button margin-tb"
-          (click)="deleteIncome(element)"
+          (click)="delete(element, 'income')"
         >
           Delete
         </button>
@@ -71,20 +84,36 @@
     <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
   </table>
 
-  <br *ngIf="dataSource !== null" />
-  <mat-divider *ngIf="dataSource !== null"></mat-divider>
+  <br *ngIf="dataSource?.data && dataSource?.data?.length" />
+  <mat-divider *ngIf="dataSource?.data && dataSource?.data?.length"></mat-divider>
 
-  <div class="centered-row" *ngIf="dataSource !== null">
+  <div class="centered-row" *ngIf="dataSource?.data && dataSource?.data?.length">
     <mat-card>
-      <mat-card-content> <h3>Total Income - 30000</h3></mat-card-content>
+      <mat-card-content> <h3>Total Income - {{ income }} ₹</h3></mat-card-content>
     </mat-card>
   </div>
 
-  <br *ngIf="expenseDataSource !== null" />
-  <mat-divider *ngIf="expenseDataSource !== null"></mat-divider>
+  <br *ngIf="expenseDataSource && expenseDataSource?.data?.length" />
+  <!-- <mat-divider *ngIf="expenseDataSource && expenseDataSource?.length"></mat-divider> -->
+
+  <div class="centered-row margin-tb">
+    <mat-card>
+      <mat-card-content *ngIf="expenseDataSource?.data?.length === 0"> No Expense Budget Data Available </mat-card-content>
+      <br *ngIf="expenseDataSource?.data?.length === 0"/>
+      <mat-card-content>
+        <button
+          mat-raised-button
+          class="red-button"
+          (click)="add('expense')"
+        >
+          Add Expense Budget
+        </button>
+      </mat-card-content>
+    </mat-card>
+  </div>
 
   <table
-    *ngIf="expenseDataSource !== null"
+    *ngIf="expenseDataSource?.data && expenseDataSource?.data?.length"
     mat-table
     [dataSource]="expenseDataSource"
     class="mat-elevation-z8"
@@ -101,7 +130,7 @@
 
     <ng-container matColumnDef="value">
       <th mat-header-cell *matHeaderCellDef>Value</th>
-      <td mat-cell *matCellDef="let element">{{ element.value }}</td>
+      <td mat-cell *matCellDef="let element">{{ element.value }} ₹</td>
     </ng-container>
 
     <ng-container matColumnDef="actions">
@@ -110,7 +139,7 @@
         <button
           mat-button
           class="green-button margin-tb"
-          (click)="editIncome(element)"
+          (click)="edit(element, 'expense')"
         >
           Edit
         </button>
@@ -118,7 +147,7 @@
         <button
           mat-button
           class="red-button margin-tb"
-          (click)="deleteIncome(element)"
+          (click)="delete(element, 'expense')"
         >
           Delete
         </button>
@@ -129,22 +158,34 @@
     <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
   </table>
 
-  <br *ngIf="expenseDataSource !== null" />
-  <mat-divider *ngIf="expenseDataSource !== null"></mat-divider>
+  <br *ngIf="expenseDataSource?.data && expenseDataSource?.data?.length" />
+  <mat-divider *ngIf="expenseDataSource?.data && expenseDataSource?.data?.length"></mat-divider>
 
-  <div class="centered-row" *ngIf="expenseDataSource !== null">
+  <div class="centered-row" *ngIf="expenseDataSource?.data && expenseDataSource?.data?.length">
     <mat-card>
       <mat-card-content>
-        <h3>Total Expense Budget - 30000</h3></mat-card-content
+        <h3>Total Expense Budget - {{ expense }} ₹</h3></mat-card-content
       >
     </mat-card>
   </div>
 
-  <br *ngIf="savingsDataSource !== null" />
-  <mat-divider *ngIf="savingsDataSource !== null"></mat-divider>
+  <br *ngIf="savingsDataSource?.data && savingsDataSource?.data?.length" />
+  <!-- <mat-divider *ngIf="savingsDataSource?.data && savingsDataSource?.data?.length"></mat-divider> -->
+
+  <div class="centered-row margin-tb">
+    <mat-card>
+      <mat-card-content *ngIf="savingsDataSource?.data?.length === 0"> No Savings Data Available </mat-card-content>
+      <br *ngIf="savingsDataSource?.data?.length === 0"/>
+      <mat-card-content>
+        <button mat-raised-button class="yellow-button" (click)="add('saving')">
+          Add Savings
+        </button>
+      </mat-card-content>
+    </mat-card>
+  </div>
 
   <table
-    *ngIf="savingsDataSource !== null"
+    *ngIf="savingsDataSource?.data && savingsDataSource?.data?.length"
     mat-table
     [dataSource]="savingsDataSource"
     class="mat-elevation-z8"
@@ -161,7 +202,7 @@
 
     <ng-container matColumnDef="value">
       <th mat-header-cell *matHeaderCellDef>Value</th>
-      <td mat-cell *matCellDef="let element">{{ element.value }}</td>
+      <td mat-cell *matCellDef="let element">{{ element.value }} ₹</td>
     </ng-container>
 
     <ng-container matColumnDef="actions">
@@ -170,7 +211,7 @@
         <button
           mat-button
           class="green-button margin-tb"
-          (click)="editIncome(element)"
+          (click)="edit(element, 'saving')"
         >
           Edit
         </button>
@@ -178,7 +219,7 @@
         <button
           mat-button
           class="red-button margin-tb"
-          (click)="deleteIncome(element)"
+          (click)="delete(element, 'saving')"
         >
           Delete
         </button>
@@ -189,52 +230,12 @@
     <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
   </table>
 
-  <br *ngIf="savingsDataSource !== null" />
-  <mat-divider *ngIf="savingsDataSource !== null"></mat-divider>
+  <br *ngIf="savingsDataSource?.data && savingsDataSource?.data?.length" />
+  <mat-divider *ngIf="savingsDataSource?.data && savingsDataSource?.data?.length"></mat-divider>
 
-  <div class="centered-row" *ngIf="savingsDataSource !== null">
+  <div class="centered-row" *ngIf="savingsDataSource?.data && savingsDataSource?.data?.length">
     <mat-card>
-      <mat-card-content> <h3>Total Savings - 30000</h3></mat-card-content>
-    </mat-card>
-  </div>
-
-  <div *ngIf="dataSource === null" class="centered-row margin-tb">
-    <mat-card>
-      <mat-card-content> No Income Data Available </mat-card-content>
-      <br />
-      <mat-card-content>
-        <button mat-raised-button class="green-button" (click)="addIncome()">
-          Add Income
-        </button>
-      </mat-card-content>
-    </mat-card>
-  </div>
-
-  <div *ngIf="expenseDataSource === null" class="centered-row margin-tb">
-    <mat-card>
-      <mat-card-content> No Expense Budget Data Available </mat-card-content>
-      <br />
-      <mat-card-content>
-        <button
-          mat-raised-button
-          class="red-button"
-          (click)="addExpenseBudget()"
-        >
-          Add Expense Budget
-        </button>
-      </mat-card-content>
-    </mat-card>
-  </div>
-
-  <div *ngIf="savingsDataSource === null" class="centered-row margin-tb">
-    <mat-card>
-      <mat-card-content> No Savings Data Available </mat-card-content>
-      <br />
-      <mat-card-content>
-        <button mat-raised-button class="yellow-button" (click)="addSavings()">
-          Add Savings
-        </button>
-      </mat-card-content>
+      <mat-card-content> <h3>Total Savings - {{ saving }} ₹</h3></mat-card-content>
     </mat-card>
   </div>
 </div>

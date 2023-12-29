@@ -222,7 +222,6 @@ export class DashboardComponent implements OnInit, AfterViewInit  {
     const valueDifference = _.pickBy(obj1, (value: any, key: any) => {
       return commonKeys.includes(key) && !_.isEqual(value, obj2[key]);
   });
-  
     return valueDifference;
   }
 
