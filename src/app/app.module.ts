@@ -25,6 +25,8 @@ import { AddMonthlyExpenseComponent } from './add-monthly-expense/add-monthly-ex
 import {MatSelectModule} from '@angular/material/select';
 import { BudgetModule } from './budget/budget.module';
 import { AddBudgetComponent } from './add-budget/add-budget.component';
+import { NotificationComponent } from './notification/notification.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @NgModule({
   declarations: [
@@ -32,7 +34,8 @@ import { AddBudgetComponent } from './add-budget/add-budget.component';
     AppNavComponent,
     AddDailyExpenseComponent,
     AddMonthlyExpenseComponent,
-    AddBudgetComponent
+    AddBudgetComponent,
+    NotificationComponent
   ],
   imports: [
     BrowserModule,
@@ -56,7 +59,7 @@ import { AddBudgetComponent } from './add-budget/add-budget.component';
     MatSelectModule,
     BudgetModule
   ],
-  providers: [],
+  providers: [MatSnackBar],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

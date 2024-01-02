@@ -9,6 +9,7 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SignupService } from './signup.service';
+import { SnackbarService } from '../services/snackbar.service';
 
 @Component({
   selector: 'app-signup',
@@ -19,7 +20,7 @@ export class SignupComponent implements OnInit {
   signupForm!: FormGroup;
   errorsCount: boolean = true;
 
-  constructor(private fb: FormBuilder, private signupService: SignupService, private router: Router) {}
+  constructor(private fb: FormBuilder, private signupService: SignupService, private snackbarService: SnackbarService, private router: Router) {}
 
   ngOnInit() {
     this.signupForm = this.fb.group(
@@ -49,10 +50,21 @@ export class SignupComponent implements OnInit {
 
   signUp() {
     console.log(this.signupForm.value);
-    this.signupService.signup(this.signupForm).subscribe(data => {
-      console.log('Signup response', data);
-      this.router.navigate([''], { replaceUrl: true });
-    })
+    this.signupService.signup(this.signupForm)
+    .subscribe({next: (res: any) => {
+      if(res?.status) {
+        setTimeout(() => {
+          this.router.navigate([''], { replaceUrl: true });
+        }, 1500);
+        this.snackbarService.openSnackBar(res?.message);
+      }
+      else {
+        this.snackbarService.openSnackBar(res?.message);
+      }
+    }, error: (err: any) => {
+      console.log('signup err', err?.error?.message)
+      this.snackbarService.openSnackBar(err?.error?.message);
+    }})
   }
 
   checkPassoword = (group: FormGroup): ValidationErrors | null => {

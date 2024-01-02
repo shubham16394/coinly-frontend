@@ -11,6 +11,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MatListModule } from '@angular/material/list';
 import { SignupService } from './signup.service';
+import { SnackbarService } from '../services/snackbar.service';
 
 
 
@@ -34,7 +35,8 @@ import { SignupService } from './signup.service';
     SignupComponent
   ],
   providers: [
-    SignupService
+    SignupService,
+    SnackbarService
   ]
 })
 export class SignupModule { }

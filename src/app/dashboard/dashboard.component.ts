@@ -8,6 +8,7 @@ import { AddDailyExpenseComponent } from '../add-daily-expense/add-daily-expense
 import * as moment from 'moment';
 import { AddMonthlyExpenseComponent } from '../add-monthly-expense/add-monthly-expense.component';
 import { DashboardService } from './dashboard.service';
+import { SnackbarService } from '../services/snackbar.service';
 import * as _ from 'lodash';
 
 @Component({
@@ -43,7 +44,7 @@ export class DashboardComponent implements OnInit, AfterViewInit  {
   expType: string = '';
   email = 'shubham16394@gmail.com';
 
-  constructor(public dialog: MatDialog, private router: Router, private dashboardService: DashboardService) {}
+  constructor(public dialog: MatDialog, private router: Router, private dashboardService: DashboardService, private snackbarService: SnackbarService) {}
 
 
   ngOnInit() {
@@ -54,11 +55,17 @@ export class DashboardComponent implements OnInit, AfterViewInit  {
 
   getAllExpData(timeFilter: string) {
     const date = timeFilter === 'daily' ? this.date : (timeFilter === 'monthly') ? this.month : new Date();
-    this.dashboardService.getAllExpenses(this.email, date.toISOString(), this.timeFilter).subscribe((res: any) => {
+    this.dashboardService.getAllExpenses(this.email, date.toISOString(), this.timeFilter).subscribe(
+      {next: (res: any) => {
+        if(res?.status){
+          this.snackbarService.openSnackBar
+        }
       const data = res?.data;
       console.log('getAllExpenses data', data);
       this.prepareData(data, timeFilter);
-    });
+    }, error: (err: any) => {
+      this.snackbarService.openSnackBar(err?.error?.message)
+    }});
   }
 
   prepareData(data: any, timeFilter: string) {
