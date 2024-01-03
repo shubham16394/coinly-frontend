@@ -65,3 +65,7 @@ body {
 mat-form-field {
   margin-right: 12px;
 }
+
+.mat-mdc-raised-button .mdc-button__label {
+  z-index: 0 !important;
+}

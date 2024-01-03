@@ -1,4 +1,11 @@
 <div class="border-dashboard">
+  <div class="centered-row">
+    <mat-icon>face</mat-icon>
+    <div style="margin-bottom: 30px;">
+      Hi, {{user.firstName}} {{user.lastName}}
+      <button mat-button style="color: #FF4986; min-width: 0 !important" (click)="logout()"><mat-icon>power_settings_new</mat-icon></button>
+    </div>
+  </div>
   <div class="button-container">
     <button mat-raised-button class="green-button" (click)="gotoBudget()">Go to Budget</button>
     <mat-button-toggle-group

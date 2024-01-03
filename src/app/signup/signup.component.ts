@@ -54,7 +54,7 @@ export class SignupComponent implements OnInit {
     .subscribe({next: (res: any) => {
       if(res?.status) {
         setTimeout(() => {
-          this.router.navigate([''], { replaceUrl: true });
+          this.router.navigate([''], {replaceUrl: true});
         }, 1500);
         this.snackbarService.openSnackBar(res?.message);
       }

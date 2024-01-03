@@ -26,6 +26,7 @@ export class AddMonthlyExpenseComponent {
     {value: 'cellphone-wifi', viewValue: ' Cellphone & Wifi'},
     {value: 'membership-subscriptions', viewValue: 'Membership & Subscriptions'},
     {value: 'travel', viewValue: 'Travel'},
+    {value: 'other', viewValue: 'Other'}
   ];
 
 

@@ -48,7 +48,7 @@ export class LoginComponent implements OnInit {
       next: (res: any) => {
         console.log('Login response', res);
         if(res?.status) {
-          this.router.navigate(['/dashboard'], { replaceUrl: true });
+          this.router.navigate(['/dashboard'], {replaceUrl: true});
         }
         else {
           this.snackbarService.openSnackBar(res?.message)
