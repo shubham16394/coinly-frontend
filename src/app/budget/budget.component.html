@@ -1,4 +1,5 @@
 <div class="border-budget">
+  <button class="zero-index" mat-stroked-button (click)="goBack()"><mat-icon>reply</mat-icon> Go back</button>
   <div class="centered-row">
     <div class="button-container-nospace">
       <h4 class="margin-tb-13">
@@ -25,217 +26,224 @@
     </div>
   </div>
 
+  <div class="centered-row-flex" *ngIf="!budgetFlag && !incomeFlag && !savingFlag">
+    <mat-spinner></mat-spinner>
+  </div> 
 
-  <div class="centered-row margin-tb">
-    <mat-card>
-      <mat-card-content *ngIf="dataSource?.data?.length === 0"> No Income Data Available </mat-card-content>
-      <br *ngIf="dataSource?.data?.length === 0"/>
-      <mat-card-content>
-        <button mat-raised-button class="green-button" (click)="add('income')">
-          Add Income
-        </button>
-      </mat-card-content>
-    </mat-card>
+  <div *ngIf="budgetFlag && incomeFlag && savingFlag">
+    <div class="centered-row margin-tb">
+      <mat-card>
+        <mat-card-content *ngIf="dataSource?.data?.length === 0"> No Income Data Available </mat-card-content>
+        <br *ngIf="dataSource?.data?.length === 0"/>
+        <mat-card-content>
+          <button mat-raised-button class="green-button" (click)="add('income')">
+            Add Income
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  
+    <table
+      *ngIf="dataSource?.data && dataSource?.data?.length"
+      mat-table
+      [dataSource]="dataSource"
+      class="mat-elevation-z8"
+    >
+      <ng-container matColumnDef="position">
+        <th mat-header-cell *matHeaderCellDef>No.</th>
+        <td mat-cell *matCellDef="let element">{{ element.position }}</td>
+      </ng-container>
+  
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+      </ng-container>
+  
+      <ng-container matColumnDef="value">
+        <th mat-header-cell *matHeaderCellDef>Value</th>
+        <td mat-cell *matCellDef="let element">{{ element.value }} ₹</td>
+      </ng-container>
+  
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let element">
+          <button
+            mat-button
+            class="green-button margin-tb"
+            (click)="edit(element, 'income')"
+          >
+            Edit
+          </button>
+  
+          <button
+            mat-button
+            class="red-button margin-tb"
+            (click)="delete(element, 'income')"
+          >
+            Delete
+          </button>
+        </td>
+      </ng-container>
+  
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  
+    <br *ngIf="dataSource?.data && dataSource?.data?.length" />
+    <mat-divider *ngIf="dataSource?.data && dataSource?.data?.length"></mat-divider>
+  
+    <div class="centered-row" *ngIf="dataSource?.data && dataSource?.data?.length">
+      <mat-card>
+        <mat-card-content> <h3>Total Income - {{ income }} ₹</h3></mat-card-content>
+      </mat-card>
+    </div>
+  
+    <br *ngIf="expenseDataSource && expenseDataSource?.data?.length" />
+    <!-- <mat-divider *ngIf="expenseDataSource && expenseDataSource?.length"></mat-divider> -->
+  
+    <div class="centered-row margin-tb">
+      <mat-card>
+        <mat-card-content *ngIf="expenseDataSource?.data?.length === 0"> No Expense Budget Data Available </mat-card-content>
+        <br *ngIf="expenseDataSource?.data?.length === 0"/>
+        <mat-card-content>
+          <button
+            mat-raised-button
+            class="red-button"
+            (click)="add('expense')"
+          >
+            Add Expense Budget
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  
+    <table
+      *ngIf="expenseDataSource?.data && expenseDataSource?.data?.length"
+      mat-table
+      [dataSource]="expenseDataSource"
+      class="mat-elevation-z8"
+    >
+      <ng-container matColumnDef="position">
+        <th mat-header-cell *matHeaderCellDef>No.</th>
+        <td mat-cell *matCellDef="let element">{{ element.position }}</td>
+      </ng-container>
+  
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+      </ng-container>
+  
+      <ng-container matColumnDef="value">
+        <th mat-header-cell *matHeaderCellDef>Value</th>
+        <td mat-cell *matCellDef="let element">{{ element.value }} ₹</td>
+      </ng-container>
+  
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let element">
+          <button
+            mat-button
+            class="green-button margin-tb"
+            (click)="edit(element, 'expense')"
+          >
+            Edit
+          </button>
+  
+          <button
+            mat-button
+            class="red-button margin-tb"
+            (click)="delete(element, 'expense')"
+          >
+            Delete
+          </button>
+        </td>
+      </ng-container>
+  
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  
+    <br *ngIf="expenseDataSource?.data && expenseDataSource?.data?.length" />
+    <mat-divider *ngIf="expenseDataSource?.data && expenseDataSource?.data?.length"></mat-divider>
+  
+    <div class="centered-row" *ngIf="expenseDataSource?.data && expenseDataSource?.data?.length">
+      <mat-card>
+        <mat-card-content>
+          <h3>Total Expense Budget - {{ expense }} ₹</h3></mat-card-content
+        >
+      </mat-card>
+    </div>
+  
+    <br *ngIf="savingsDataSource?.data && savingsDataSource?.data?.length" />
+    <!-- <mat-divider *ngIf="savingsDataSource?.data && savingsDataSource?.data?.length"></mat-divider> -->
+  
+    <div class="centered-row margin-tb">
+      <mat-card>
+        <mat-card-content *ngIf="savingsDataSource?.data?.length === 0"> No Savings Data Available </mat-card-content>
+        <br *ngIf="savingsDataSource?.data?.length === 0"/>
+        <mat-card-content>
+          <button mat-raised-button class="yellow-button" (click)="add('saving')">
+            Add Savings
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  
+    <table
+      *ngIf="savingsDataSource?.data && savingsDataSource?.data?.length"
+      mat-table
+      [dataSource]="savingsDataSource"
+      class="mat-elevation-z8"
+    >
+      <ng-container matColumnDef="position">
+        <th mat-header-cell *matHeaderCellDef>No.</th>
+        <td mat-cell *matCellDef="let element">{{ element.position }}</td>
+      </ng-container>
+  
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+      </ng-container>
+  
+      <ng-container matColumnDef="value">
+        <th mat-header-cell *matHeaderCellDef>Value</th>
+        <td mat-cell *matCellDef="let element">{{ element.value }} ₹</td>
+      </ng-container>
+  
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let element">
+          <button
+            mat-button
+            class="green-button margin-tb"
+            (click)="edit(element, 'saving')"
+          >
+            Edit
+          </button>
+  
+          <button
+            mat-button
+            class="red-button margin-tb"
+            (click)="delete(element, 'saving')"
+          >
+            Delete
+          </button>
+        </td>
+      </ng-container>
+  
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  
+    <br *ngIf="savingsDataSource?.data && savingsDataSource?.data?.length" />
+    <mat-divider *ngIf="savingsDataSource?.data && savingsDataSource?.data?.length"></mat-divider>
+  
+    <div class="centered-row" *ngIf="savingsDataSource?.data && savingsDataSource?.data?.length">
+      <mat-card>
+        <mat-card-content> <h3>Total Savings - {{ saving }} ₹</h3></mat-card-content>
+      </mat-card>
+    </div>
   </div>
 
-  <table
-    *ngIf="dataSource?.data && dataSource?.data?.length"
-    mat-table
-    [dataSource]="dataSource"
-    class="mat-elevation-z8"
-  >
-    <ng-container matColumnDef="position">
-      <th mat-header-cell *matHeaderCellDef>No.</th>
-      <td mat-cell *matCellDef="let element">{{ element.position }}</td>
-    </ng-container>
 
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef>Name</th>
-      <td mat-cell *matCellDef="let element">{{ element.name }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="value">
-      <th mat-header-cell *matHeaderCellDef>Value</th>
-      <td mat-cell *matCellDef="let element">{{ element.value }} ₹</td>
-    </ng-container>
-
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef>Actions</th>
-      <td mat-cell *matCellDef="let element">
-        <button
-          mat-button
-          class="green-button margin-tb"
-          (click)="edit(element, 'income')"
-        >
-          Edit
-        </button>
-
-        <button
-          mat-button
-          class="red-button margin-tb"
-          (click)="delete(element, 'income')"
-        >
-          Delete
-        </button>
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-  </table>
-
-  <br *ngIf="dataSource?.data && dataSource?.data?.length" />
-  <mat-divider *ngIf="dataSource?.data && dataSource?.data?.length"></mat-divider>
-
-  <div class="centered-row" *ngIf="dataSource?.data && dataSource?.data?.length">
-    <mat-card>
-      <mat-card-content> <h3>Total Income - {{ income }} ₹</h3></mat-card-content>
-    </mat-card>
-  </div>
-
-  <br *ngIf="expenseDataSource && expenseDataSource?.data?.length" />
-  <!-- <mat-divider *ngIf="expenseDataSource && expenseDataSource?.length"></mat-divider> -->
-
-  <div class="centered-row margin-tb">
-    <mat-card>
-      <mat-card-content *ngIf="expenseDataSource?.data?.length === 0"> No Expense Budget Data Available </mat-card-content>
-      <br *ngIf="expenseDataSource?.data?.length === 0"/>
-      <mat-card-content>
-        <button
-          mat-raised-button
-          class="red-button"
-          (click)="add('expense')"
-        >
-          Add Expense Budget
-        </button>
-      </mat-card-content>
-    </mat-card>
-  </div>
-
-  <table
-    *ngIf="expenseDataSource?.data && expenseDataSource?.data?.length"
-    mat-table
-    [dataSource]="expenseDataSource"
-    class="mat-elevation-z8"
-  >
-    <ng-container matColumnDef="position">
-      <th mat-header-cell *matHeaderCellDef>No.</th>
-      <td mat-cell *matCellDef="let element">{{ element.position }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef>Name</th>
-      <td mat-cell *matCellDef="let element">{{ element.name }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="value">
-      <th mat-header-cell *matHeaderCellDef>Value</th>
-      <td mat-cell *matCellDef="let element">{{ element.value }} ₹</td>
-    </ng-container>
-
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef>Actions</th>
-      <td mat-cell *matCellDef="let element">
-        <button
-          mat-button
-          class="green-button margin-tb"
-          (click)="edit(element, 'expense')"
-        >
-          Edit
-        </button>
-
-        <button
-          mat-button
-          class="red-button margin-tb"
-          (click)="delete(element, 'expense')"
-        >
-          Delete
-        </button>
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-  </table>
-
-  <br *ngIf="expenseDataSource?.data && expenseDataSource?.data?.length" />
-  <mat-divider *ngIf="expenseDataSource?.data && expenseDataSource?.data?.length"></mat-divider>
-
-  <div class="centered-row" *ngIf="expenseDataSource?.data && expenseDataSource?.data?.length">
-    <mat-card>
-      <mat-card-content>
-        <h3>Total Expense Budget - {{ expense }} ₹</h3></mat-card-content
-      >
-    </mat-card>
-  </div>
-
-  <br *ngIf="savingsDataSource?.data && savingsDataSource?.data?.length" />
-  <!-- <mat-divider *ngIf="savingsDataSource?.data && savingsDataSource?.data?.length"></mat-divider> -->
-
-  <div class="centered-row margin-tb">
-    <mat-card>
-      <mat-card-content *ngIf="savingsDataSource?.data?.length === 0"> No Savings Data Available </mat-card-content>
-      <br *ngIf="savingsDataSource?.data?.length === 0"/>
-      <mat-card-content>
-        <button mat-raised-button class="yellow-button" (click)="add('saving')">
-          Add Savings
-        </button>
-      </mat-card-content>
-    </mat-card>
-  </div>
-
-  <table
-    *ngIf="savingsDataSource?.data && savingsDataSource?.data?.length"
-    mat-table
-    [dataSource]="savingsDataSource"
-    class="mat-elevation-z8"
-  >
-    <ng-container matColumnDef="position">
-      <th mat-header-cell *matHeaderCellDef>No.</th>
-      <td mat-cell *matCellDef="let element">{{ element.position }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef>Name</th>
-      <td mat-cell *matCellDef="let element">{{ element.name }}</td>
-    </ng-container>
-
-    <ng-container matColumnDef="value">
-      <th mat-header-cell *matHeaderCellDef>Value</th>
-      <td mat-cell *matCellDef="let element">{{ element.value }} ₹</td>
-    </ng-container>
-
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef>Actions</th>
-      <td mat-cell *matCellDef="let element">
-        <button
-          mat-button
-          class="green-button margin-tb"
-          (click)="edit(element, 'saving')"
-        >
-          Edit
-        </button>
-
-        <button
-          mat-button
-          class="red-button margin-tb"
-          (click)="delete(element, 'saving')"
-        >
-          Delete
-        </button>
-      </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-  </table>
-
-  <br *ngIf="savingsDataSource?.data && savingsDataSource?.data?.length" />
-  <mat-divider *ngIf="savingsDataSource?.data && savingsDataSource?.data?.length"></mat-divider>
-
-  <div class="centered-row" *ngIf="savingsDataSource?.data && savingsDataSource?.data?.length">
-    <mat-card>
-      <mat-card-content> <h3>Total Savings - {{ saving }} ₹</h3></mat-card-content>
-    </mat-card>
-  </div>
 </div>

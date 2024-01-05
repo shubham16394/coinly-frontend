@@ -15,11 +15,15 @@ import { FormsModule } from '@angular/forms';
 import {MatTableModule} from '@angular/material/table';
 import {MatChipsModule} from '@angular/material/chips';
 import {MatDialogModule} from '@angular/material/dialog';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { DashboardService } from './dashboard.service';
+import { SnackbarService } from '../services/snackbar.service';
+import { BudgetService } from '../budget/budget.service';
+import { GraphModule } from '../graph/graph.module';
 
 @NgModule({
   declarations: [
-    DashboardComponent
+    DashboardComponent,
   ],
   imports: [
     CommonModule,
@@ -36,9 +40,11 @@ import { DashboardService } from './dashboard.service';
     FormsModule,
     MatTableModule,
     MatChipsModule,
-    MatDialogModule
+    MatDialogModule,
+    MatProgressSpinnerModule,
+    GraphModule
   ],
   exports: [DashboardComponent],
-  providers: [DashboardService]
+  providers: [DashboardService, SnackbarService, BudgetService]
 })
 export class DashboardModule { }

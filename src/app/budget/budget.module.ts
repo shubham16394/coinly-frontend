@@ -9,6 +9,9 @@ import {MatTableModule} from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import {MatDividerModule} from '@angular/material/divider';
 import { BudgetService } from './budget.service';
+import { MatIconModule } from '@angular/material/icon';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { SnackbarService } from '../services/snackbar.service';
 
 @NgModule({
   declarations: [
@@ -22,11 +25,13 @@ import { BudgetService } from './budget.service';
     MatCardModule,
     MatTableModule,
     MatButtonModule,
-    MatDividerModule
+    MatDividerModule,
+    MatIconModule,
+    MatProgressSpinnerModule
   ],
   exports: [
     BudgetComponent
   ],
-  providers: [BudgetService]
+  providers: [BudgetService, SnackbarService]
 })
 export class BudgetModule { }

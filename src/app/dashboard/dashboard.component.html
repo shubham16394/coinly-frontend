@@ -1,13 +1,21 @@
 <div class="border-dashboard">
   <div class="centered-row">
     <mat-icon>face</mat-icon>
-    <div style="margin-bottom: 30px;">
-      Hi, {{user.firstName}} {{user.lastName}}
-      <button mat-button style="color: #FF4986; min-width: 0 !important" (click)="logout()"><mat-icon>power_settings_new</mat-icon></button>
+    <div style="margin-bottom: 30px">
+      Hi, {{ user.firstName }} {{ user.lastName }}
+      <button
+        mat-button
+        style="color: #ff4986; min-width: 0 !important"
+        (click)="logout()"
+      >
+        <mat-icon>power_settings_new</mat-icon>
+      </button>
     </div>
   </div>
   <div class="button-container">
-    <button mat-raised-button class="green-button" (click)="gotoBudget()">Go to Budget</button>
+    <button mat-raised-button class="green-button" (click)="gotoBudget()">
+      Go to Budget
+    </button>
     <mat-button-toggle-group
       appearance="legacy"
       name="fontStyle"
@@ -65,250 +73,325 @@
       </mat-datepicker>
     </div>
   </div>
-  <div class="button-container margin-tb">
-    <mat-card>
-      <mat-card-content *ngIf="timeFilter === 'daily'">
-        Total Daily Budget -
-        <br />
-        <h1 style="color: green">{{ budget }} ₹</h1>
-      </mat-card-content>
-      <mat-card-content *ngIf="timeFilter === 'monthly'">
-        Total Monthly Budget -
-        <br />
-        <h1 style="color: green">{{ budget }} ₹</h1>
-      </mat-card-content>
-    </mat-card>
-    <mat-card>
-      <mat-card-content>
-        Expenses so far -
-        <br />
-        <h1 style="color: red">{{ expenses }} ₹</h1>
-      </mat-card-content>
-    </mat-card>
-  </div>
-  <div class="margin-tb-10 centered-row" style="color: red; font-weight: bold;">
-    <mat-card>
-      <mat-card-content>Your avg expense pace is more than the daily budget.</mat-card-content>
-    </mat-card>
-  </div>
-  <div class="centered-row" *ngIf="timeFilter === 'daily'">
-    <button mat-raised-button class="red-button" (click)="openAddDailyExpenseDialog()">Add Today's Expense</button>
-  </div>
-  <div class="margin-tb-10" *ngIf="timeFilter === 'daily'">
-    <table
-      mat-table
-      [dataSource]="dataSource"
-      multiTemplateDataRows
-      class="mat-elevation-z8"
-    >
-      <ng-container
-        matColumnDef="{{ column }}"
-        *ngFor="let column of columnsToDisplay"
+  <div class="centered-row-flex" *ngIf="!budgetFlag && !expensesFlag && !previousExpFlag && !expChangeFlag">
+    <mat-spinner></mat-spinner>
+  </div> 
+  <div *ngIf="budgetFlag && previousExpFlag && expChangeFlag && expensesFlag">
+    <div class="button-container margin-tb">
+      <mat-card>
+        <mat-card-content *ngIf="timeFilter === 'daily'">
+          Total Daily Budget -
+          <br />
+          <h1 style="color: #0cc980">{{ budget }} ₹</h1>
+          Left so far -
+          <h2 [ngStyle]="{ color: getColor(false) }">
+            {{ budget - expenses }} ₹
+          </h2>
+        </mat-card-content>
+        <mat-card-content *ngIf="timeFilter === 'monthly'">
+          Total Monthly Budget -
+          <br />
+          <h1 style="color: #0cc980">{{ budget }} ₹</h1>
+          Left so far -
+          <h2 [ngStyle]="{ color: getColor(false) }">
+            {{ budget - expenses }} ₹
+          </h2>
+        </mat-card-content>
+      </mat-card>
+      <mat-card>
+        <mat-card-content>
+          Expenses so far -
+          <br />
+          <h1 style="color: #f74c82">{{ expenses }} ₹</h1>
+          <ng-container *ngIf="timeFilter === 'daily'">
+            Change from last date -
+            <h2 [ngStyle]="{ color: getColor(true) }">
+              {{ getAbsExpChange() }} %
+              <span *ngIf="expChange < 0 && expChange !== 0"
+                ><mat-icon>trending_up</mat-icon></span
+              >
+              <span *ngIf="expChange > 0 && expChange !== 0"
+                ><mat-icon>trending_down</mat-icon></span
+              >
+            </h2>
+          </ng-container>
+          <ng-container *ngIf="timeFilter === 'monthly'">
+            Change from last month -
+            <h2 [ngStyle]="{ color: getColor(true) }">
+              {{ getAbsExpChange() }} %
+              <span *ngIf="expChange < 0 && expChange !== 0"
+                ><mat-icon>trending_up</mat-icon></span
+              >
+              <span *ngIf="expChange > 0 && expChange !== 0"
+                ><mat-icon>trending_down</mat-icon></span
+              >
+            </h2>
+          </ng-container>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    <!-- <div class="margin-tb-10 centered-row" style="color: #f74c82; font-weight: 550;">
+      <mat-card>
+        <mat-card-content>Your avg expense pace is more than the daily budget.</mat-card-content>
+      </mat-card>
+    </div> -->
+    <br>
+    <app-graph [expenses]="formatGraphData(graphData)" *ngIf="graphData && graphData?.length"></app-graph>
+    <br />
+    <div class="centered-row" *ngIf="timeFilter === 'daily'">
+      <button
+        mat-raised-button
+        class="red-button"
+        (click)="openAddDailyExpenseDialog()"
       >
-        <th mat-header-cell *matHeaderCellDef>{{ column }}</th>
-        <ng-container *ngIf="column === 'Time'">
-          <td mat-cell *matCellDef="let element">
-            {{ element[columnDataMap[column]] | date : "hh:mm a"}}
-          </td>
-        </ng-container>
-        <ng-container *ngIf="column !== 'Time'">
-          <td mat-cell *matCellDef="let element">
-            {{ element[columnDataMap[column]]}} ₹
-          </td>
-        </ng-container>
-      </ng-container>
-      <ng-container matColumnDef="expand">
-        <th mat-header-cell *matHeaderCellDef aria-label="row actions">
-          &nbsp;
-        </th>
-        <td mat-cell *matCellDef="let element">
-          <button
-            mat-icon-button
-            aria-label="expand row"
-            (click)="
-              expandedElement = expandedElement === element ? null : element;
-              $event.stopPropagation()
-            "
-          >
-            <mat-icon *ngIf="expandedElement !== element"
-              >keyboard_arrow_down</mat-icon
-            >
-            <mat-icon *ngIf="expandedElement === element"
-              >keyboard_arrow_up</mat-icon
-            >
-          </button>
-        </td>
-      </ng-container>
-
-      <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
-      <ng-container matColumnDef="expandedDetail">
-        <td
-          mat-cell
-          *matCellDef="let element"
-          [attr.colspan]="columnsToDisplayWithExpand.length"
+        Add Today's Expense
+      </button>
+    </div>
+    <div class="margin-tb-10" *ngIf="timeFilter === 'daily'">
+      <table
+        mat-table
+        [dataSource]="dataSource"
+        multiTemplateDataRows
+        class="mat-elevation-z8"
+      >
+        <ng-container
+          matColumnDef="{{ column }}"
+          *ngFor="let column of columnsToDisplay"
         >
-          <tr class="display-block" *ngFor="let exp of element?.expenses">
+          <th mat-header-cell *matHeaderCellDef>{{ column }}</th>
+          <ng-container *ngIf="column === 'Time'">
+            <td mat-cell *matCellDef="let element">
+              {{ element[columnDataMap[column]] | date : "hh:mm a" }}
+            </td>
+          </ng-container>
+          <ng-container *ngIf="column !== 'Time'">
+            <td mat-cell *matCellDef="let element">
+              {{ element[columnDataMap[column]] }} ₹
+            </td>
+          </ng-container>
+        </ng-container>
+        <ng-container matColumnDef="expand">
+          <th mat-header-cell *matHeaderCellDef aria-label="row actions">
+            &nbsp;
+          </th>
+          <td mat-cell *matCellDef="let element">
+            <button
+              mat-icon-button
+              aria-label="expand row"
+              (click)="
+                expandedElement = expandedElement === element ? null : element;
+                $event.stopPropagation()
+              "
+            >
+              <mat-icon *ngIf="expandedElement !== element"
+                >keyboard_arrow_down</mat-icon
+              >
+              <mat-icon *ngIf="expandedElement === element"
+                >keyboard_arrow_up</mat-icon
+              >
+            </button>
+          </td>
+        </ng-container>
+
+        <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+        <ng-container matColumnDef="expandedDetail">
+          <td
+            mat-cell
+            *matCellDef="let element"
+            [attr.colspan]="columnsToDisplayWithExpand.length"
+          >
+            <tr class="display-block" *ngFor="let exp of element?.expenses">
+              <div
+                class="example-element-detail"
+                [@detailExpand]="
+                  element == expandedElement ? 'expanded' : 'collapsed'
+                "
+              >
+                <div class="example-element-diagram centered-row">
+                  <mat-chip class="margin-tb-5" [ngClass]="getTagClass(exp.type)">{{
+                    exp.type | titlecase
+                  }}</mat-chip>
+                  <div class="example-element-weight margin-tb-5">
+                    {{ exp.expValue }} ₹
+                  </div>
+                  <div class="example-element-weight margin-tb-5">
+                    {{ exp.comment }}
+                  </div>
+                  <div class="example-element-weight margin-tb-5">
+                    {{ exp.expTime | date : "hh:mm a" }}
+                  </div>
+                </div>
+                <div class="example-element-description">
+                  <button
+                    mat-button
+                    class="green-button"
+                    (click)="editDaily(exp)"
+                  >
+                    Edit
+                  </button>
+                  <br />
+                  <br />
+                  <button
+                    mat-button
+                    class="red-button"
+                    (click)="deleteDaily(exp)"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </tr>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columnsToDisplayWithExpand"></tr>
+        <tr
+          mat-row
+          *matRowDef="let element; columns: columnsToDisplayWithExpand"
+          class="example-element-row"
+          [class.example-expanded-row]="expandedElement === element"
+          (click)="
+            expandedElement = expandedElement === element ? null : element
+          "
+        ></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: ['expandedDetail']"
+          class="example-detail-row"
+        ></tr>
+      </table>
+    </div>
+    <div class="margin-tb-10" *ngIf="timeFilter === 'monthly'">
+      <table
+        mat-table
+        [dataSource]="dataSource"
+        multiTemplateDataRows
+        class="mat-elevation-z8"
+      >
+        <ng-container
+          matColumnDef="{{ column }}"
+          *ngFor="let column of columnsToDisplayMonthly"
+        >
+          <th mat-header-cell *matHeaderCellDef>{{ column }}</th>
+          <ng-container *ngIf="column === 'Date'">
+            <td mat-cell *matCellDef="let element">
+              {{ element[monthlyColumnDataMap[column]] | date : "dd-MM-yyyy" }}
+            </td>
+          </ng-container>
+          <ng-container *ngIf="column !== 'Date'">
+            <td mat-cell *matCellDef="let element">
+              {{ element[monthlyColumnDataMap[column]] }} ₹
+            </td>
+          </ng-container>
+        </ng-container>
+        <ng-container matColumnDef="expand">
+          <th mat-header-cell *matHeaderCellDef aria-label="row actions">
+            &nbsp;
+          </th>
+          <td mat-cell *matCellDef="let element">
+            <button
+              mat-icon-button
+              aria-label="expand row"
+              (click)="
+                expandedElement = expandedElement === element ? null : element;
+                $event.stopPropagation()
+              "
+            >
+              <mat-icon *ngIf="expandedElement !== element"
+                >keyboard_arrow_down</mat-icon
+              >
+              <mat-icon *ngIf="expandedElement === element"
+                >keyboard_arrow_up</mat-icon
+              >
+            </button>
+          </td>
+        </ng-container>
+
+        <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
+        <ng-container matColumnDef="expandedDetail">
+          <td
+            mat-cell
+            *matCellDef="let element"
+            [attr.colspan]="columnsToDisplayMonthlyWithExpand.length"
+          >
             <div
-              class="example-element-detail"
+              class="centered-row"
               [@detailExpand]="
                 element == expandedElement ? 'expanded' : 'collapsed'
               "
             >
-              <div class="example-element-diagram centered-row">
-                <mat-chip class="green-button margin-tb-5">{{
-                  exp.type | titlecase
-                }}</mat-chip>
-                <div class="example-element-weight margin-tb-5">
-                  {{ exp.expValue }} ₹
-                </div>
-                <div class="example-element-weight margin-tb-5">
-                  {{ exp.comment }}
-                </div>
-                <div class="example-element-weight margin-tb-5">
-                  {{ exp.expTime | date : "hh:mm a" }}
-                </div>
-              </div>
-              <div class="example-element-description">
-                <button mat-button class="green-button" (click)="editDaily(exp)">
-                  Edit
-                </button>
-                <br />
-                <br />
-                <button mat-button class="red-button" (click)="deleteDaily(exp)">
-                  Delete
-                </button>
-              </div>
+              <button
+                mat-raised-button
+                color="accent"
+                (click)="openAddMonthlyExpenseDialog(element?.time)"
+              >
+                Add Expense
+              </button>
             </div>
-          </tr>
-        </td>
-      </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="columnsToDisplayWithExpand"></tr>
-      <tr
-        mat-row
-        *matRowDef="let element; columns: columnsToDisplayWithExpand"
-        class="example-element-row"
-        [class.example-expanded-row]="expandedElement === element"
-        (click)="expandedElement = expandedElement === element ? null : element"
-      ></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: ['expandedDetail']"
-        class="example-detail-row"
-      ></tr>
-    </table>
-  </div>
-  <div class="margin-tb-10" *ngIf="timeFilter === 'monthly'">
-    <table
-      mat-table
-      [dataSource]="dataSource"
-      multiTemplateDataRows
-      class="mat-elevation-z8"
-    >
-      <ng-container
-        matColumnDef="{{ column }}"
-        *ngFor="let column of columnsToDisplayMonthly"
-      >
-        <th mat-header-cell *matHeaderCellDef>{{ column }}</th>
-        <ng-container *ngIf="column === 'Date'">
-          <td mat-cell *matCellDef="let element">
-            {{ element[monthlyColumnDataMap[column]] | date : "dd-MM-yyyy" }}
+            <tr class="display-block" *ngFor="let exp of element?.expenses">
+              <div
+                class="example-element-detail centered-row"
+                [@detailExpand]="
+                  element == expandedElement ? 'expanded' : 'collapsed'
+                "
+              >
+                <div class="example-element-diagram centered-row">
+                  <mat-chip class="margin-tb-5" [ngClass]="getTagClass(exp.type)">{{
+                    exp.type | titlecase
+                  }}</mat-chip>
+                  <div class="example-element-weight margin-tb-5">
+                    {{ exp.expValue }} ₹
+                  </div>
+                  <div class="example-element-weight margin-tb-5">
+                    {{ exp.comment }}
+                  </div>
+                  <div class="example-element-weight margin-tb-5">
+                    {{ exp.expTime | date : "hh:mm a" }}
+                  </div>
+                </div>
+                <div class="example-element-description">
+                  <button
+                    mat-button
+                    class="green-button"
+                    (click)="editMonthly(exp, element?.time)"
+                  >
+                    Edit
+                  </button>
+                  <br />
+                  <br />
+                  <button
+                    mat-button
+                    class="red-button"
+                    (click)="deleteMonthly(exp)"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </tr>
           </td>
         </ng-container>
-        <ng-container *ngIf="column !== 'Date'">
-          <td mat-cell *matCellDef="let element">
-            {{ element[monthlyColumnDataMap[column]] }} ₹
-          </td>
-        </ng-container>
-      </ng-container>
-      <ng-container matColumnDef="expand">
-        <th mat-header-cell *matHeaderCellDef aria-label="row actions">
-          &nbsp;
-        </th>
-        <td mat-cell *matCellDef="let element">
-          <button
-            mat-icon-button
-            aria-label="expand row"
-            (click)="
-              expandedElement = expandedElement === element ? null : element;
-              $event.stopPropagation()
-            "
-          >
-            <mat-icon *ngIf="expandedElement !== element"
-              >keyboard_arrow_down</mat-icon
-            >
-            <mat-icon *ngIf="expandedElement === element"
-              >keyboard_arrow_up</mat-icon
-            >
-          </button>
-        </td>
-      </ng-container>
 
-      <!-- Expanded Content Column - The detail row is made up of this one column that spans across all columns -->
-      <ng-container matColumnDef="expandedDetail">
-        <td
-          mat-cell
-          *matCellDef="let element"
-          [attr.colspan]="columnsToDisplayMonthlyWithExpand.length"
-        >
-          <div
-            class="centered-row"
-            [@detailExpand]="
-              element == expandedElement ? 'expanded' : 'collapsed'
-            "
-          >
-            <button mat-raised-button color="accent" (click)="openAddMonthlyExpenseDialog(element?.time)">Add Expense</button>
-          </div>
-
-          <tr class="display-block" *ngFor="let exp of element?.expenses">
-            <div
-              class="example-element-detail centered-row"
-              [@detailExpand]="
-                element == expandedElement ? 'expanded' : 'collapsed'
-              "
-            >
-              <div class="example-element-diagram centered-row">
-                <mat-chip class="green-button margin-tb-5">{{
-                  exp.type | titlecase
-                }}</mat-chip>
-                <div class="example-element-weight margin-tb-5">
-                  {{ exp.expValue }} ₹
-                </div>
-                <div class="example-element-weight margin-tb-5">
-                  {{ exp.comment }}
-                </div>
-                <div class="example-element-weight margin-tb-5">
-                  {{ exp.expTime | date : "hh:mm a" }}
-                </div>
-              </div>
-              <div class="example-element-description">
-                <button mat-button class="green-button" (click)="editMonthly(exp, element?.time)">
-                  Edit
-                </button>
-                <br />
-                <br />
-                <button mat-button class="red-button" (click)="deleteMonthly(exp)">
-                  Delete
-                </button>
-              </div>
-            </div>
-          </tr>
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="columnsToDisplayMonthlyWithExpand"></tr>
-      <tr
-        mat-row
-        *matRowDef="let element; columns: columnsToDisplayMonthlyWithExpand"
-        class="example-element-row"
-        [class.example-expanded-row]="expandedElement === element"
-        (click)="expandedElement = expandedElement === element ? null : element"
-      ></tr>
-      <tr
-        mat-row
-        *matRowDef="let row; columns: ['expandedDetail']"
-        class="example-detail-row"
-      ></tr>
-    </table>
+        <tr
+          mat-header-row
+          *matHeaderRowDef="columnsToDisplayMonthlyWithExpand"
+        ></tr>
+        <tr
+          mat-row
+          *matRowDef="let element; columns: columnsToDisplayMonthlyWithExpand"
+          class="example-element-row"
+          [class.example-expanded-row]="expandedElement === element"
+          (click)="
+            expandedElement = expandedElement === element ? null : element
+          "
+        ></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: ['expandedDetail']"
+          class="example-detail-row"
+        ></tr>
+      </table>
+    </div>
   </div>
 </div>

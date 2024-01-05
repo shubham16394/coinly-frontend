@@ -26,6 +26,7 @@ import {MatSelectModule} from '@angular/material/select';
 import { BudgetModule } from './budget/budget.module';
 import { AddBudgetComponent } from './add-budget/add-budget.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { SharedService } from './services/shared.service';
 
 @NgModule({
   declarations: [
@@ -57,7 +58,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     MatSelectModule,
     BudgetModule
   ],
-  providers: [MatSnackBar],
+  providers: [MatSnackBar, SharedService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

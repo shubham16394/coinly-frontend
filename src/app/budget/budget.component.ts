@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import {
   MatDatepicker,
@@ -28,19 +29,31 @@ export class BudgetComponent implements OnInit {
   saving: number = 0;
   name: string = '';
   value: number = 0;
+  incomeFlag = false;
+  budgetFlag = false;
+  savingFlag = false;
   email = 'shubham16394@gmail.com';
 
   constructor(
     public dialog: MatDialog,
     private budgetService: BudgetService,
-    private snackbarService: SnackbarService
+    private snackbarService: SnackbarService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     this.getAllBudgetData();
   }
 
+  goBack() {
+    this.router.navigate(['/dashboard']);
+  }
+
   getAllBudgetData() {
+    this.dataSource.data = [];
+    this.expenseDataSource.data = [];
+    this.savingsDataSource.data = [];
+
     const incomeObservable = this.budgetService.getBudget(
       this.email,
       this.month.toISOString(),
@@ -81,6 +94,7 @@ export class BudgetComponent implements OnInit {
           } else {
             this.savingsDataSource.data = [];
           }
+          this.setFlags();
         },
         error: (error) => {
           // Handle error
@@ -97,6 +111,18 @@ export class BudgetComponent implements OnInit {
     }
   }
 
+  unsetFlags() {
+    this.budgetFlag = false;
+    this.incomeFlag = false;
+    this.savingFlag = false;
+  }
+
+  setFlags() {
+    this.budgetFlag = true;
+    this.incomeFlag = true;
+    this.savingFlag = true;
+  }
+
   changeDate(event: MatDatepickerInputEvent<Date>) {
     console.log(this.month, event.value);
   }
@@ -105,6 +131,7 @@ export class BudgetComponent implements OnInit {
     normalizedMonthAndYear: moment.Moment,
     datepicker: MatDatepicker<moment.Moment>
   ) {
+    this.unsetFlags();
     this.month = new Date(normalizedMonthAndYear.toISOString());
     console.log(datepicker, normalizedMonthAndYear, this.month);
     datepicker.close();

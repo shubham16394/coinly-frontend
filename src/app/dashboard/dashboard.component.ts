@@ -18,7 +18,9 @@ import * as moment from 'moment';
 import { AddMonthlyExpenseComponent } from '../add-monthly-expense/add-monthly-expense.component';
 import { DashboardService } from './dashboard.service';
 import { SnackbarService } from '../services/snackbar.service';
+import { BudgetService } from '../budget/budget.service';
 import * as _ from 'lodash';
+import { SharedService } from '../services/shared.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -37,10 +39,16 @@ import * as _ from 'lodash';
 })
 export class DashboardComponent implements OnInit, AfterViewInit {
   timeFilter: string = 'daily';
-  budget: number = 10000;
+  budget: number = 0;
   expenses: number = 0;
+  previousExp: number = 0;
+  expChange: number = 0;
+  budgetFlag = false;
+  expensesFlag = false;
+  previousExpFlag = false;
+  expChangeFlag = false;
   date: Date = new Date();
-  month: Date = new Date();
+  month: Date = new Date(new Date(new Date().setDate(1)).setHours(0, 0, 0, 0));
   columnsToDisplay = ['Time', 'Total Value'];
   columnsToDisplayMonthly = ['Date', 'Total Value'];
   columnDataMap: columnDataMapType = { Time: 'time', 'Total Value': 'value' };
@@ -49,6 +57,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     'Total Value': 'value',
   };
   dataSource = new MatTableDataSource(ELEMENT_DATA);
+  graphData: any = [];
   columnsToDisplayWithExpand = [...this.columnsToDisplay, 'expand'];
   columnsToDisplayMonthlyWithExpand = [
     ...this.columnsToDisplayMonthly,
@@ -61,100 +70,216 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   email = 'shubham16394@gmail.com';
   user = {
     firstName: 'Shubham',
-    lastName: 'Tiwari'
-  }
+    lastName: 'Tiwari',
+  };
 
   constructor(
     public dialog: MatDialog,
     private router: Router,
     private dashboardService: DashboardService,
-    private snackbarService: SnackbarService
+    private snackbarService: SnackbarService,
+    private budgetService: BudgetService,
+    private sharedService: SharedService
   ) {}
 
-  ngOnInit() {
-    this.getAllExpData(this.timeFilter);
+  async ngOnInit() {
+    this.initCall();
   }
 
   ngAfterViewInit(): void {}
 
-  getAllExpData(timeFilter: string) {
-    const date =
-      timeFilter === 'daily'
-        ? this.date
-        : timeFilter === 'monthly'
-        ? this.month
-        : new Date();
-    this.dashboardService
-      .getAllExpenses(this.email, date.toISOString(), this.timeFilter)
-      .subscribe({
-        next: (res: any) => {
-          if (!res?.status) {
-            this.snackbarService.openSnackBar('Something went wrong!');
-          } else {
-            const data = res?.data;
-            console.log('getAllExpenses data', data);
-            this.prepareData(data, timeFilter);
-          }
-        },
-        error: (err: any) => {
-          this.snackbarService.openSnackBar('Something went wrong!');
-        },
-      });
+  unsetFlags() {
+    this.budgetFlag = false;
+    this.expensesFlag = false;
+    this.previousExpFlag = false;
+    this.expChangeFlag = false;
   }
 
-  prepareData(data: any, timeFilter: string) {
-    const formattedData = [];
-    let uniqHrs = data.map((e: any) => {
-      let hr: any;
-      if (timeFilter === 'daily') {
-        const hrVal = new Date(e?.createdAt).getHours();
-        hr = new Date(e?.createdAt).setHours(hrVal, 0, 0, 0);
-      } else if (timeFilter === 'monthly') {
-        hr = new Date(e?.createdAt).setHours(0, 0, 0, 0);
-      }
-      return new Date(hr).toISOString();
-    });
-    uniqHrs = new Set(uniqHrs);
-    console.log(uniqHrs);
-    for (let h of uniqHrs) {
-      console.log('h', h);
-      const filterData = data
-        .filter((e1: any) => {
-          let hrVal: any;
-          if (timeFilter === 'daily') {
-            hrVal = new Date(e1?.createdAt).getHours();
-          } else if (timeFilter === 'monthly') {
-            hrVal = 0;
-          }
-          return (
-            new Date(
-              new Date(e1?.createdAt).setHours(hrVal, 0, 0, 0)
-            ).toISOString() == h
-          );
-        })
-        .map((e: any) => {
-          return {
-            type: e?.type,
-            expValue: e?.value,
-            expTime: e?.createdAt,
-            comment: e?.comment,
-            _id: e?._id,
-            createdBy: e?.createdBy,
-          };
+  getAllExpData(timeFilter: string, previous: boolean): Promise<void> {
+    return new Promise((resolve) => {
+      let date =
+        timeFilter === 'daily'
+          ? this.date
+          : timeFilter === 'monthly'
+          ? this.month
+          : new Date();
+      date =
+        previous === false ? date : this.getPreviousDate(date, timeFilter, 1);
+      this.dashboardService
+        .getAllExpenses(this.email, date.toISOString(), this.timeFilter)
+        .subscribe({
+          next: async (res: any) => {
+            if (!res?.status) {
+              this.snackbarService.openSnackBar('Something went wrong!');
+            } else {
+              const data = res?.data;
+              if (previous) {
+                this.previousExp = await this.prepareData(
+                  data,
+                  timeFilter,
+                  previous
+                );
+                this.previousExpFlag = true;
+              } else if (!previous) {
+                this.expenses = await this.prepareData(
+                  data,
+                  timeFilter,
+                  previous
+                );
+                this.expensesFlag = true;
+              }
+            }
+            resolve();
+          },
+          error: (err: any) => {
+            console.log('Err in getting exp data', err);
+            this.snackbarService.openSnackBar('Something went wrong!');
+            resolve();
+          },
         });
-      console.log('filterData', filterData);
-      const totalValue = filterData.reduce((acc: any, curr: any) => {
-        return acc + curr?.expValue;
-      }, 0);
-      formattedData.push({
-        time: h,
-        value: totalValue,
-        expenses: this.sortData(filterData, 'expTime'),
-      });
+    });
+  }
+
+  getPreviousDate(date: Date, timeFilter: string, subtract: number) {
+    const currentDate = date;
+    const previousDate = new Date(currentDate);
+    if (timeFilter === 'daily') {
+      previousDate.setDate(currentDate.getDate() - subtract);
+    } else if (timeFilter === 'monthly') {
+      previousDate.setMonth(currentDate.getMonth() - subtract);
     }
-    console.log('formattedData', formattedData);
-    this.dataSource.data = this.sortData(formattedData, 'time');
-    this.expSoFar();
+    return previousDate;
+  }
+
+  percentChanges(): Promise<number> {
+    return new Promise((resolve) => {
+      let expChange = 0;
+      const x = this.previousExp;
+      const y = this.expenses;
+      if (x === 0 && y !== 0) {
+        expChange = -100;
+      } else if (y === 0) {
+        expChange = 0;
+      } else {
+        expChange = Number((((x - y) / x) * 100).toFixed(2));
+      }
+      resolve(expChange);
+    });
+  }
+
+  getColor(percent: boolean) {
+    if (percent) {
+      return this.expChange < 0 ? '#f74c82' : '#0cc980';
+    }
+    return this.budget - this.expenses <= 0 ? '#f74c82' : '#0cc980';
+  }
+
+  getAbsExpChange() {
+    return Math.abs(this.expChange);
+  }
+
+  async prepareData(
+    data: any,
+    timeFilter: string,
+    previous: boolean
+  ): Promise<number> {
+    return new Promise(async (resolve) => {
+      const formattedData = [];
+      let expenses = 0;
+      let uniqHrs = data.map((e: any) => {
+        let hr: any;
+        if (timeFilter === 'daily') {
+          const hrVal = new Date(e?.createdAt).getHours();
+          hr = new Date(e?.createdAt).setHours(hrVal, 0, 0, 0);
+        } else if (timeFilter === 'monthly') {
+          hr = new Date(e?.createdAt).setHours(0, 0, 0, 0);
+        }
+        return new Date(hr).toISOString();
+      });
+      uniqHrs = new Set(uniqHrs);
+      for (let h of uniqHrs) {
+        const filterData = data
+          .filter((e1: any) => {
+            let hrVal: any;
+            if (timeFilter === 'daily') {
+              hrVal = new Date(e1?.createdAt).getHours();
+            } else if (timeFilter === 'monthly') {
+              hrVal = 0;
+            }
+            return (
+              new Date(
+                new Date(e1?.createdAt).setHours(hrVal, 0, 0, 0)
+              ).toISOString() == h
+            );
+          })
+          .map((e: any) => {
+            return {
+              type: e?.type,
+              expValue: e?.value,
+              expTime: e?.createdAt,
+              comment: e?.comment,
+              _id: e?._id,
+              createdBy: e?.createdBy,
+            };
+          });
+        const totalValue = filterData.reduce((acc: any, curr: any) => {
+          return acc + curr?.expValue;
+        }, 0);
+        formattedData.push({
+          time: h,
+          value: totalValue,
+          expenses: this.sortData(filterData, 'expTime'),
+        });
+      }
+      if (!previous) {
+        this.sortData(formattedData, 'time');
+        expenses = formattedData.reduce((acc: any, curr: any) => {
+          return acc + curr?.value;
+        }, 0);
+        this.dataSource.data = formattedData;
+        this.budget = await this.getBudget();
+        this.budgetFlag = true;
+        this.prepareGraphData(formattedData);
+      } else if (previous) {
+        expenses = data.reduce((acc: any, curr: any) => {
+          return acc + curr?.value;
+        }, 0);
+      }
+      resolve(expenses);
+    });
+  }
+
+  prepareGraphData(data: any) {
+    const expData = data.map((e: any) => e?.expenses).flat();
+    const catogery = expData.map((e: any) => {return e?.type});
+    const uniqCat = new Set(catogery);
+    const graphData = [];
+    for(let cat of uniqCat){
+      graphData.push({name: cat, y: expData.filter((e: any) => { return e?.type === cat }).reduce((acc: number, curr: any) => {return acc + curr?.expValue}, 0)});
+    }
+    this.graphData = graphData;
+    
+    this.sharedService.updateGraphData(this.formatGraphData(this.graphData));
+  }
+
+  formatGraphData(graphData: any) {
+    const catgoreyMap: any = {
+      'housing': 'Housing',
+      'grocery': 'Grocery',
+      'dine-out': 'Dine out',
+      'transportation': 'Transportation',
+      'health': 'Health',
+      'debt-payments': 'Debt Payments',
+      'entertainment': 'Entertainment',
+      'cellphone-wifi': 'Cellphone & Wifi',
+      'membership-subscriptions': 'Membership & Subscriptions',
+      'travel': 'Travel',
+      'child-care': 'Child Care',
+      'pet-care': 'Pet Care',
+      'other': 'Other'
+  
+    }
+    return graphData.map((e: any) => { return {name: catgoreyMap[e?.name], y: e?.y}; });
   }
 
   sortData(data: any, time: string) {
@@ -163,9 +288,13 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     });
   }
 
-  addExpenseToData(data: any, timeFilter: string, edit: boolean, del: boolean) {
+  async addExpenseToData(
+    data: any,
+    timeFilter: string,
+    edit: boolean,
+    del: boolean
+  ) {
     const dataSourceData = this.dataSource.data;
-    console.log('dataSourceData', dataSourceData);
     let hr: number;
     if (timeFilter === 'daily') {
       const hrVal = new Date(data?.createdAt).getHours();
@@ -176,7 +305,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     let actDataIndex = dataSourceData.findIndex((e: any) => {
       return new Date(hr).toISOString() == e?.time;
     });
-    console.log('actDataIndex', actDataIndex, dataSourceData[actDataIndex]);
     if (actDataIndex < 0) {
       dataSourceData.push({
         time: new Date(hr).toISOString(),
@@ -202,9 +330,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
           dataSourceData[actDataIndex]?.expenses[index]?.expValue;
         dataSourceData[actDataIndex].expenses[index] = expData;
       }
-      this.snackbarService.openSnackBar(
-        'Edited expense successfully'
-      );  
+      this.snackbarService.openSnackBar('Edited expense successfully');
     } else if (del) {
       const index = _.findIndex(dataSourceData[actDataIndex]?.expenses, {
         _id: data?._id,
@@ -219,23 +345,23 @@ export class DashboardComponent implements OnInit, AfterViewInit {
           dataSourceData[actDataIndex].value -=
             dataSourceData[actDataIndex]?.expenses[index]?.expValue;
           dataSourceData[actDataIndex].expenses.splice(index, 1);
+          if(dataSourceData[actDataIndex].expenses.length === 0) {
+            dataSourceData.splice(actDataIndex, 1);
+          }
         }
       }
-      this.snackbarService.openSnackBar(
-        'Deleted expense successfully'
-      );  
+      this.snackbarService.openSnackBar('Deleted expense successfully');
     } else {
       dataSourceData[actDataIndex]?.expenses.push(expData);
-      this.snackbarService.openSnackBar(
-        'Added expense successfully'
-      );  
+      this.snackbarService.openSnackBar('Added expense successfully');
     }
     if (!del) {
       dataSourceData[actDataIndex].value += data?.value;
     }
-    console.log('dataSourceData updated', dataSourceData);
     this.dataSource.data = dataSourceData;
+    this.prepareGraphData(dataSourceData);
     this.expSoFar();
+    this.expChange = await this.percentChanges();
   }
 
   expSoFar() {
@@ -243,38 +369,91 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.expenses = data.reduce((acc: any, curr: any) => {
       return acc + curr?.value;
     }, 0);
+    this.dataSource.data = data;
   }
 
-  timeFilterChange(time: string) {
+  getBudget(): Promise<number> {
+    return new Promise((resolve) => {
+      this.budgetService
+        .getBudget(
+          this.email,
+          this.timeFilter === 'daily'
+            ? this.date.toISOString()
+            : this.month.toISOString(),
+          'expense'
+        )
+        .subscribe({
+          next: (res: any) => {
+            const data = res?.data;
+            const totalBudget = data.reduce((acc: number, curr: any) => {
+              return acc + curr?.value;
+            }, 0);
+            let budget = 0;
+            if (this.timeFilter === 'monthly') {
+              budget = totalBudget;
+            } else if (this.timeFilter === 'daily') {
+              const days = this.getTotalDaysInMonth(this.date);
+              budget = Math.floor(totalBudget / days);
+            }
+            resolve(budget);
+          },
+          error: (err: any) => {
+            console.log('Err in getting expense budget', err);
+            resolve(0);
+          },
+        });
+    });
+  }
+
+  getTotalDaysInMonth(date: Date) {
+    const currentMonth = date.getMonth();
+    const currentYear = date.getFullYear();
+    const firstDayOfNextMonth = new Date(currentYear, currentMonth + 1, 1);
+    const lastDayOfMonth = new Date((firstDayOfNextMonth as any) - 1);
+    const endDate = new Date(lastDayOfMonth.setHours(23, 59, 59, 999));
+    return endDate.getDate();
+  }
+
+  async timeFilterChange(time: string) {
+    this.unsetFlags();
     if (time === 'daily') {
       this.timeFilter = 'daily';
     } else if (time === 'monthly') {
       this.timeFilter = 'monthly';
     }
-    this.getAllExpData(this.timeFilter);
+    this.budget = 0;
+    this.expChange = 0;
+    this.expenses = 0;
+    this.previousExp = 0;
+    this.initCall();
   }
 
-  changeDate(event: MatDatepickerInputEvent<Date>) {
-    console.log('changeDate', this.date, event.value);
-    this.getAllExpData(this.timeFilter);
+  async initCall() {
+    await this.getAllExpData(this.timeFilter, false);
+    await this.getAllExpData(this.timeFilter, true);
+    this.expChange = await this.percentChanges();
+    this.expChangeFlag = true;
   }
 
-  setMonthAndYear(
+  async changeDate(event: MatDatepickerInputEvent<Date>) {
+    this.unsetFlags();
+    this.initCall();
+  }
+
+  async setMonthAndYear(
     normalizedMonthAndYear: moment.Moment,
     datepicker: MatDatepicker<moment.Moment>
   ) {
+    this.unsetFlags();
     this.month = new Date(normalizedMonthAndYear.toISOString());
-    console.log(datepicker, normalizedMonthAndYear, this.month);
     datepicker.close();
-    this.getAllExpData(this.timeFilter);
+    this.initCall();
   }
 
   editDaily(element: any) {
-    console.log('edit element', element);
     const { _id, createdBy, expValue, expTime, ...elemData } = element;
     elemData.date = expTime;
     elemData.value = expValue;
-    console.log('elemData', elemData, _id, createdBy);
     const data = {
       value: element.expValue,
       comment: element.comment,
@@ -288,20 +467,15 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     dialogRef.afterClosed().subscribe((result) => {
       this.value = 0;
       this.comment = '';
-      console.log('The edit daily dialog was closed', result, data);
-
       if (!_.isEqual(elemData, result)) {
         const diff: any = this.findValueDifference(result, elemData);
-        console.log('diff', diff);
         if (!diff?.date) {
           this.dashboardService
             .editExpense(element?._id, { updateData: diff })
             .subscribe((res: any) => {
-              console.log('edit daily res', res);
               if (res?.data) {
                 this.addExpenseToData(res?.data, this.timeFilter, true, false);
               } else {
-                console.log('Edit Daily Response is empty');
                 this.snackbarService.openSnackBar(
                   'Error occurred in editing expense'
                 );
@@ -309,7 +483,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
             });
         }
       } else {
-        console.log('same');
         this.snackbarService.openSnackBar('No value is updated');
       }
     });
@@ -325,24 +498,19 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   deleteDaily(element: any) {
-    console.log('delete daily element', element);
     this.dashboardService.deleteExpense(element?._id).subscribe((res: any) => {
-      console.log('delete daily res', res);
       if (res?.data?.value) {
         this.addExpenseToData(res?.data?.value, this.timeFilter, false, true);
       } else {
-        console.log('Delete Daily Response is empty');
         this.snackbarService.openSnackBar('Error occurred in deleting expense');
       }
     });
   }
 
   editMonthly(element: any, time: Date) {
-    console.log('edit monthly', element);
     const { _id, createdBy, expValue, expTime, ...elemData } = element;
     elemData.date = expTime;
     elemData.value = expValue;
-    console.log('elemData monthly', elemData, _id, createdBy);
     const data = {
       value: element.expValue,
       comment: element.comment,
@@ -356,24 +524,15 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     dialogRef.afterClosed().subscribe((result) => {
       this.value = 0;
       this.comment = '';
-      console.log(
-        'The edit monthly dialog was closed',
-        this.value,
-        this.comment,
-        result
-      );
       if (!_.isEqual(elemData, result)) {
         const diff: any = this.findValueDifference(result, elemData);
-        console.log('diff', diff);
         if (!diff?.date) {
           this.dashboardService
             .editExpense(element?._id, { updateData: diff })
             .subscribe((res: any) => {
-              console.log('edit monthly res', res);
               if (res?.data) {
                 this.addExpenseToData(res?.data, this.timeFilter, true, false);
               } else {
-                console.log('Edit Monthly Response is empty');
                 this.snackbarService.openSnackBar(
                   'Error occurred in editing expense'
                 );
@@ -381,20 +540,16 @@ export class DashboardComponent implements OnInit, AfterViewInit {
             });
         }
       } else {
-        console.log('same monthly');
         this.snackbarService.openSnackBar('No value is updated');
       }
     });
   }
 
   deleteMonthly(element: any) {
-    console.log('delete monthly element', element);
     this.dashboardService.deleteExpense(element?._id).subscribe((res: any) => {
-      console.log('delete monthly res', res);
       if (res?.data?.value) {
         this.addExpenseToData(res?.data?.value, this.timeFilter, false, true);
       } else {
-        console.log('Delete Monthly Response is empty');
         this.snackbarService.openSnackBar('Error occurred in deleting expense');
       }
     });
@@ -413,26 +568,20 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     dialogRef.afterClosed().subscribe((result) => {
       this.value = 0;
       this.comment = '';
-      console.log('The daily dialog was closed', result);
       if (result?.value && result?.type && result?.date) {
         this.dashboardService
           .addExpense(this.email, this.date.toISOString(), result)
           .subscribe((res: any) => {
-            console.log('addexpense response', res);
             if (res?.data && res?.status) {
               this.addExpenseToData(res?.data, this.timeFilter, false, false);
             } else {
-              console.log('Add Daily Response is empty');
               this.snackbarService.openSnackBar(
                 'Error occurred in adding expense'
               );
             }
           });
-      }
-      else {
-        this.snackbarService.openSnackBar(
-          'Please fill all the fields'
-        );
+      } else {
+        this.snackbarService.openSnackBar('Please fill all the fields');
       }
     });
   }
@@ -445,38 +594,25 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     dialogRef.afterClosed().subscribe((result) => {
       this.value = 0;
       this.comment = '';
-      console.log(
-        'The monthly dialog was closed',
-        this.value,
-        this.comment,
-        result,
-        this.date.toISOString()
-      );
       if (result?.value && result?.type && result?.date) {
         this.dashboardService
           .addExpense(this.email, result?.date, result)
           .subscribe((res: any) => {
-            console.log('add monthly expense response', res);
             if (res?.data) {
               this.addExpenseToData(res?.data, this.timeFilter, false, false);
             } else {
-              console.log('Add Monthly Response is empty');
               this.snackbarService.openSnackBar(
                 'Error occurred in adding expense'
               );
             }
           });
-      }
-      else {
-        this.snackbarService.openSnackBar(
-          'Please fill all the fields'
-        );
+      } else {
+        this.snackbarService.openSnackBar('Please fill all the fields');
       }
     });
   }
 
   gotoBudget() {
-    console.log('budget route');
     this.router.navigate(['budget']);
   }
 
@@ -486,16 +622,37 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     const intervalId = setInterval(() => {
       timer--;
       count--;
-      if(count > 0) {
-        this.snackbarService.openSnackBar(`Your will be logged out in ${count} seconds`);
+      if (count > 0) {
+        this.snackbarService.openSnackBar(
+          `Your will be logged out in ${count} seconds`
+        );
       }
       if (timer === 0) {
         clearInterval(intervalId);
       }
-    }, 1000); 
+    }, 1000);
     setTimeout(() => {
-      this.router.navigate([''], {replaceUrl:true});
-    }, 5000)
+      this.router.navigate([''], { replaceUrl: true });
+    }, 5000);
+  }
+
+  getTagClass(exp: string) {
+    const expClassMap: expType = {
+      'housing': 'blue-tag',
+      'grocery': 'purple-tag',
+      'dine-out': 'green-tag',
+      'transportation': 'gray-tag',
+      'health': 'pink-tag',
+      'debt-payments': 'light-blue-tag',
+      'entertainment': 'red-tag',
+      'cellphone-wifi': 'ceyon-tag',
+      'membership-subscriptions': 'light-green-tag',
+      'travel': 'orange-tag',
+      'child-care': 'pale-yellow-tag',
+      'pet-care': 'yellow-tag',
+      'other': 'light-red-tag'
+    }
+    return expClassMap[exp];
   }
 }
 
@@ -503,6 +660,10 @@ type columnDataMapType = {
   [key: string]: 'type' | 'value' | 'time';
   Time: 'time';
   'Total Value': 'value';
+};
+
+type expType = {
+  [key: string]: string;
 };
 
 type monthlyColumnDataMapType = {

@@ -14,6 +14,13 @@ body {
   flex: 1; /* This makes sure the text takes up the available space horizontally */
 }
 
+.centered-row-flex {
+  justify-content: center;
+  text-align: center;
+  display: flex;
+  margin-top: 150px;
+}
+
 .border {
   margin-top: 125px;
   margin-bottom: 125px;
@@ -37,14 +44,82 @@ body {
 
 .green-button {
     background-color: #059862 !important; 
+    z-index: 0 !important;
+}
+
+.gray-tag {
+  background-color: #808080 !important; 
+  z-index: 0 !important;
+}
+
+.red-tag {
+  background-color: #E81010 !important; 
+  z-index: 0 !important;
+}
+
+.orange-tag {
+  background-color: #EB7317 !important; 
+  z-index: 0 !important;
+}
+
+.pale-yellow-tag {
+  background-color: #c49404 !important; 
+  z-index: 0 !important;
+}
+
+.yellow-tag {
+  background-color: #B8AE00 !important; 
+  z-index: 0 !important;
+}
+
+.light-green-tag {
+  background-color: #72B849 !important; 
+  z-index: 0 !important;
+}
+
+.green-tag {
+  background-color: #2CB05F !important; 
+  z-index: 0 !important;
+}
+
+.ceyon-tag {
+  background-color: #23B8A4 !important; 
+  z-index: 0 !important;
+}
+
+.light-blue-tag {
+  background-color: #0071EB !important; 
+  z-index: 0 !important;
+}
+
+.blue-tag {
+  background-color: #0738EB !important; 
+  z-index: 0 !important;
+}
+
+.purple-tag {
+  background-color: #8B17FF !important; 
+  z-index: 0 !important;
+}
+
+.pink-tag {
+  background-color: #EB3BE5 !important; 
+  z-index: 0 !important;
+}
+
+.light-red-tag {
+  background-color: #ED3B7F !important; 
+  z-index: 0 !important;
 }
 
 .red-button {
     background-color: #E83B46 !important; 
+    z-index: 0 !important;
 }
 
 .yellow-button {
   background-color: #FACF3B !important; 
+  z-index: 0 !important;
 }
 
 .button-container-nospace {
@@ -62,10 +137,10 @@ body {
   margin-left: 10px;
 }
 
-mat-form-field {
+.mat-form-field {
   margin-right: 12px;
 }
 
-.mat-mdc-raised-button .mdc-button__label {
+.zero-index {
   z-index: 0 !important;
 }

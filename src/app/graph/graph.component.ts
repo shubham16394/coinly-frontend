@@ -1,149 +1,83 @@
-import { Component, Input, OnInit, AfterContentInit, OnChanges, SimpleChanges, AfterContentChecked } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  OnDestroy
+} from '@angular/core';
+import { SharedService } from '../services/shared.service';
 
 @Component({
   selector: 'app-graph',
   templateUrl: './graph.component.html',
   styleUrls: ['./graph.component.scss'],
 })
-export class GraphComponent implements OnInit, AfterContentInit, OnChanges, AfterContentChecked {
-  @Input() type!: string;
+export class GraphComponent
+  implements OnInit, OnDestroy
+{
 
-  @Input() dateOrMonth!: Date;
+  @Input() expenses: any = [];
 
-  @Input() expenses!: object;
 
-  @Input() budget!: object;
-
-  xTitle!: string;
-  chartOptions!: object;
+  chartOptions =  {
+    animationEnabled: true,
+    theme: "dark2",
+    exportEnabled: true,
+    subtitles: [{
+      text: "Expense Categorization"
+    }],
+    data: [{
+    type: "doughnut", //change type to column, line, area, line, etc
+    indexLabel: "{name}: {y}₹",
+    dataPoints: this.expenses
+    }]
+  }
   chart!: any;
+  timeout: any = null;
 
-  ngOnInit(): void {
-    console.log('GraphComponent called');
+  constructor(private sharedService: SharedService) {
+    this.sharedService.graphData$.subscribe((newData: any[]) => {
+      // Handle changes to graphData here
+      this.expenses = newData;
+      this.updateChart();
+    });
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    console.log('changes', changes)
-    // this.budget = changes?.['budget']?.currentValue;
-    // this.expenses = changes?.['expenses']?.currentValue;
-    this.ngAfterContentInit();
+  ngOnInit(): void {}
+
+  ngOnDestroy() {
+    clearTimeout(this.timeout);
   }
-
-  ngAfterContentInit(): void {
-    console.log('budget', this.budget, 'expenses', this.expenses, this.dateOrMonth, this.chart)
-    if (this.type === 'daily') {
-      this.xTitle = 'Hours';
-    } else if (this.type === 'monthly') {
-      this.xTitle = 'Days';
-    }
-    console.log(this.xTitle);
-    this.chartOptions = {
-      animationEnabled: true,
-      // title:{
-      // 	text: "Average Monthly Rainfall"
-      // },
-      theme: 'dark1',
-      axisX: {
-        title: this.xTitle,
-      },
-      axisY: {
-        title: 'Money (₹)',
-      },
-      toolTip: {
-        shared: true,
-      },
-      legend: {
-        cursor: 'pointer',
-        itemclick: function (e: any) {
-          if (
-            typeof e.dataSeries.visible === 'undefined' ||
-            e.dataSeries.visible
-          ) {
-            e.dataSeries.visible = false;
-          } else {
-            e.dataSeries.visible = true;
-          }
-          e.chart.render();
-        },
-      },
-      data: [
-        {
-          type: 'spline',
-          showInLegend: true,
-          name: 'Budget',
-          dataPoints: this.budget,
-        },
-        {
-          type: 'spline',
-          showInLegend: true,
-          name: 'Expense',
-          dataPoints: this.expenses,
-        },
-      ],
-    };
-
-    this.chart.render()
-
-  }
-
-  ngAfterContentChecked(): void {
-      console.log(this.budget, this.expenses)
-  }
-
+  
   getChartInstance(chart: object) {
-    console.log('chart', chart)
-    this.chart = chart;
-    this.chart.render();
-    // this.updateData();
+    if(chart) {
+      this.chart = chart;
+      this.chart?.render();
+      this.updateChart();  
+    }
   }
 
-  updateData() {
+  updateChart = () =>  {
     this.chartOptions = {
       animationEnabled: true,
-      // title:{
-      // 	text: "Average Monthly Rainfall"
-      // },
-      theme: 'dark1',
-      axisX: {
-        title: this.xTitle,
-      },
-      axisY: {
-        title: 'Money (₹)',
-      },
-      toolTip: {
-        shared: true,
-      },
-      legend: {
-        cursor: 'pointer',
-        itemclick: function (e: any) {
-          if (
-            typeof e.dataSeries.visible === 'undefined' ||
-            e.dataSeries.visible
-          ) {
-            e.dataSeries.visible = false;
-          } else {
-            e.dataSeries.visible = true;
-          }
-          e.chart.render();
+      theme: 'dark2',
+      exportEnabled: true,
+      
+      subtitles: [
+        {
+          text: 'Expense Categorization',
         },
-      },
+      ],
       data: [
         {
-          type: 'spline',
-          showInLegend: true,
-          name: 'Budget',
-          dataPoints: this.budget,
-        },
-        {
-          type: 'spline',
-          showInLegend: true,
-          name: 'Expense',
+          type: 'doughnut', //change type to column, line, area, doughnut, etc
+          indexLabel: '{name}: {y}₹',
           dataPoints: this.expenses,
         },
       ],
     };
-    this.chart.render();
+    if(this.chart !== null && this.chart !== undefined) {
+      this.chart?.render();
+    }
+    this.timeout = setTimeout(this.updateChart, 1000);
   }
-
-
 }

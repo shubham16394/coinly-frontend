@@ -1,3 +1,3 @@
 export const environment = {
-    serverURL: "http://localhost:3000/coinly",
+    serverURL: "https://b697-49-206-135-185.ngrok-free.app/coinly",
 };

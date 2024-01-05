@@ -27,4 +27,8 @@ export class DashboardService {
         return this.http.delete(`${this.url}/expense/${expId}/deleteexp`);
     }
 
+    getExpCatData(email: string, date: string, dateType: string) {
+        return this.http.get(`${this.url}/expense/${email}/${date}/${dateType}/getexpcatdata`);
+    }
+
 }

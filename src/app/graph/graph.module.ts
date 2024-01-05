@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GraphComponent } from './graph.component';
+import { CanvasJSAngularChartsModule } from '@canvasjs/angular-charts';
+
 
 
 @NgModule({
@@ -8,7 +10,8 @@ import { GraphComponent } from './graph.component';
     GraphComponent
   ],
   imports: [
-    CommonModule
+    CommonModule,
+    CanvasJSAngularChartsModule
   ],
   exports: [
     GraphComponent

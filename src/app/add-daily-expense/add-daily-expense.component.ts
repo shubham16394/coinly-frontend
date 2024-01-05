@@ -18,14 +18,14 @@ export class AddDailyExpenseComponent {
     {value: 'grocery', viewValue: 'Grocery'},
     {value: 'dine-out', viewValue: 'Dine out'},
     {value: 'transportation', viewValue: 'Transportation'},
-    {value: 'child-care', viewValue: 'Child Care'},
-    {value: 'pet-care', viewValue: 'Pet Care'},
     {value: 'health', viewValue: 'Health'},
     {value: 'debt-payments', viewValue: 'Debt Payments'},
     {value: 'entertainment', viewValue: 'Entertainment'},
-    {value: 'cellphone-wifi', viewValue: ' Cellphone & Wifi'},
+    {value: 'cellphone-wifi', viewValue: 'Cellphone & Wifi'},
     {value: 'membership-subscriptions', viewValue: 'Membership & Subscriptions'},
     {value: 'travel', viewValue: 'Travel'},
+    {value: 'child-care', viewValue: 'Child Care'},
+    {value: 'pet-care', viewValue: 'Pet Care'},
     {value: 'other', viewValue: 'Other'}
   ];
 
