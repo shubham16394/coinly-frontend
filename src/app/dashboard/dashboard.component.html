@@ -130,11 +130,18 @@
         </mat-card-content>
       </mat-card>
     </div>
-    <!-- <div class="margin-tb-10 centered-row" style="color: #f74c82; font-weight: 550;">
-      <mat-card>
-        <mat-card-content>Your avg expense pace is more than the daily budget.</mat-card-content>
+    <div class="margin-tb-10 centered-row" *ngIf="timeFilter === 'monthly' && getNewDailyBudget() !== 0 && getNewDailyBudget()">
+      <mat-card *ngIf="getAvgExpense().lastDays > days" style="color: white; font-weight: 550;">
+        <mat-card-content>
+          Your avg expense pace which <p style="color: #2CB05F; margin-bottom: 0;"><b>{{ getAvgExpense().avgExpense }} ₹</b></p> is less than the daily budget. You can spend upto <p style="color: #2CB05F; margin-bottom: 0;"><b>{{getNewDailyBudget()}} ₹</b></p> and still can meet to monthly budget goal.
+        </mat-card-content>
       </mat-card>
-    </div> -->
+      <mat-card *ngIf="getAvgExpense().lastDays < days" style="color: white; font-weight: 550;">
+        <mat-card-content>
+          Your avg expense pace which <p style="color: #f74c82;; margin-bottom: 0;"><b>{{ getAvgExpense().avgExpense }} ₹</b></p> is more than the daily budget. You need to cut your daily budget to <p style="color: #f74c82;; margin-bottom: 0;"><b>{{getNewDailyBudget()}} ₹</b></p> in order to meet your monthly budget goal, otherwise with this expense pace, the total budget will last only <p style="color: #f74c82;; margin-bottom: 0;"><b>{{ getAvgExpense().lastDays }}</b></p> days and there are still <p style="color: #f74c82;; margin-bottom: 0;"><b>{{ getAvgExpense().leftDays }}</b></p> days left in completing the month.
+        </mat-card-content>
+      </mat-card>
+    </div>
     <br>
     <app-graph [expenses]="formatGraphData(graphData)" *ngIf="graphData && graphData?.length"></app-graph>
     <br />

@@ -43,6 +43,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   expenses: number = 0;
   previousExp: number = 0;
   expChange: number = 0;
+  totalBudget: number = 0;
+  days: number = 0;
   budgetFlag = false;
   expensesFlag = false;
   previousExpFlag = false;
@@ -237,7 +239,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
           return acc + curr?.value;
         }, 0);
         this.dataSource.data = formattedData;
-        this.budget = await this.getBudget();
+        const { budget, totalBudget, days } = await this.getBudget();
+        this.budget = budget;
+        this.totalBudget = totalBudget;
+        this.days = days;
         this.budgetFlag = true;
         this.prepareGraphData(formattedData);
       } else if (previous) {
@@ -372,7 +377,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.dataSource.data = data;
   }
 
-  getBudget(): Promise<number> {
+  getBudget(): Promise<{budget: number, totalBudget: number, days: number}> {
+    const days = this.getTotalDaysInMonth(this.date);
     return new Promise((resolve) => {
       this.budgetService
         .getBudget(
@@ -392,14 +398,13 @@ export class DashboardComponent implements OnInit, AfterViewInit {
             if (this.timeFilter === 'monthly') {
               budget = totalBudget;
             } else if (this.timeFilter === 'daily') {
-              const days = this.getTotalDaysInMonth(this.date);
               budget = Math.floor(totalBudget / days);
             }
-            resolve(budget);
+            resolve({budget, totalBudget, days});
           },
           error: (err: any) => {
             console.log('Err in getting expense budget', err);
-            resolve(0);
+            resolve({budget: 0, totalBudget: 0, days});
           },
         });
     });
@@ -653,6 +658,27 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       'other': 'light-red-tag'
     }
     return expClassMap[exp];
+  }
+
+  getNewDailyBudget() {
+    let newDailyBudget = 0;
+    if(this.expenses !== 0 && (this.days - this.date.getDate()) !== 0) {
+      newDailyBudget = Number(((this.budget - this.expenses) / (this.days - this.date.getDate())).toFixed(2));
+    }
+    return newDailyBudget !== 0 ? newDailyBudget : 0;
+  }
+
+  getAvgExpense() {
+    let avgExpense = 0;
+    let lastDays = 0;
+    const data = this.dataSource.data;
+    if(data && data.length) {
+      avgExpense = Number((data.reduce((acc: number, curr: any) => {return acc + curr?.value}, 0) / this.date.getDate()).toFixed(2));  
+    }
+    if(avgExpense !== 0) {
+      lastDays = Math.floor((this.budget / avgExpense));
+    }
+    return {avgExpense: (avgExpense !== 0 ? avgExpense : 0), lastDays: (lastDays !== 0 ? lastDays : 0), leftDays: (this.days - this.date.getDate())};
   }
 }
 
