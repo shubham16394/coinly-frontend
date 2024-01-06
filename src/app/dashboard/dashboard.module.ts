@@ -20,6 +20,7 @@ import { DashboardService } from './dashboard.service';
 import { SnackbarService } from '../services/snackbar.service';
 import { BudgetService } from '../budget/budget.service';
 import { GraphModule } from '../graph/graph.module';
+import { LoginService } from '../login/login.service';
 
 @NgModule({
   declarations: [
@@ -45,6 +46,6 @@ import { GraphModule } from '../graph/graph.module';
     GraphModule
   ],
   exports: [DashboardComponent],
-  providers: [DashboardService, SnackbarService, BudgetService]
+  providers: [DashboardService, SnackbarService, BudgetService, LoginService]
 })
 export class DashboardModule { }

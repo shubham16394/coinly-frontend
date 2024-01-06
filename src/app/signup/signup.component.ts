@@ -10,6 +10,7 @@ import {
 import { Router } from '@angular/router';
 import { SignupService } from './signup.service';
 import { SnackbarService } from '../services/snackbar.service';
+import { LoginService } from '../login/login.service';
 
 @Component({
   selector: 'app-signup',
@@ -20,7 +21,9 @@ export class SignupComponent implements OnInit {
   signupForm!: FormGroup;
   errorsCount: boolean = true;
 
-  constructor(private fb: FormBuilder, private signupService: SignupService, private snackbarService: SnackbarService, private router: Router) {}
+  constructor(private fb: FormBuilder, private signupService: SignupService, private snackbarService: SnackbarService, private loginService: LoginService, private router: Router) {
+    !this.loginService.isLoggedIn() ? this.router.navigate(['/signup'], {replaceUrl: true}) : this.router.navigate(['/dashboard'], {replaceUrl: true});
+  }
 
   ngOnInit() {
     this.signupForm = this.fb.group(
@@ -49,7 +52,6 @@ export class SignupComponent implements OnInit {
   }
 
   signUp() {
-    console.log(this.signupForm.value);
     this.signupService.signup(this.signupForm)
     .subscribe({next: (res: any) => {
       if(res?.status) {

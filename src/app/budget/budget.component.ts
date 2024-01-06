@@ -12,6 +12,7 @@ import { SnackbarService } from '../services/snackbar.service';
 import * as moment from 'moment';
 import { MatTableDataSource } from '@angular/material/table';
 import * as _ from 'lodash';
+import { LoginService } from '../login/login.service';
 
 @Component({
   selector: 'app-budget',
@@ -32,16 +33,25 @@ export class BudgetComponent implements OnInit {
   incomeFlag = false;
   budgetFlag = false;
   savingFlag = false;
-  email = 'shubham16394@gmail.com';
+  email: string | null = '';
+  firstName: string | null = '';
+  lastName: string | null = '';
 
   constructor(
     public dialog: MatDialog,
     private budgetService: BudgetService,
     private snackbarService: SnackbarService,
+    private loginService: LoginService,
     private router: Router
-  ) {}
+  ) {
+    !this.loginService.isLoggedIn() ? this.router.navigate([''], {replaceUrl: true}) : this.router.navigate(['/budget'], {replaceUrl: true});
+  }
 
   ngOnInit(): void {
+    const {email, firstName, lastName} = this.loginService.getUserFromLocalStorage();
+    this.email = email;
+    this.firstName = firstName;
+    this.lastName = lastName;
     this.getAllBudgetData();
   }
 
@@ -76,9 +86,6 @@ export class BudgetComponent implements OnInit {
           const income = incomeData as respose;
           const expense = expenseData as respose;
           const saving = savingData as respose;
-          console.log('Income data:', incomeData);
-          console.log('Expense data:', expenseData);
-          console.log('Saving data:', savingData);
           if (income && income?.data && Object.keys(income?.data).length) {
             this.prepareData(income?.data, 'income');
           } else {
@@ -292,7 +299,6 @@ export class BudgetComponent implements OnInit {
           })
           .subscribe({
             next: (res: any) => {
-              console.log('add res', res);
               if (res?.data && res?.status) {
                 this.addData(res?.data, type);
               } else {
@@ -309,7 +315,6 @@ export class BudgetComponent implements OnInit {
             },
           });
       } else {
-        console.log('add parameters not found');
         this.snackbarService.openSnackBar(
           `Name and Value are mandatroy ${type}`
         );
@@ -326,11 +331,8 @@ export class BudgetComponent implements OnInit {
         type,
       },
     });
-    console.log('edit element', element);
     dialogRef.afterClosed().subscribe((result) => {
-      console.log('edit res', result);
       const diff: any = this.findValueDifference(result, element);
-      console.log('diff', diff);
       if (diff) {
         this.budgetService
           .updateBudget(element?._id, { updateBudgetData: diff })
@@ -352,7 +354,6 @@ export class BudgetComponent implements OnInit {
             },
           });
       } else {
-        console.log('Nothing to edit');
         this.snackbarService.openSnackBar(
           `No value updated while editing ${type}`
         );
@@ -365,23 +366,21 @@ export class BudgetComponent implements OnInit {
       this.budgetService.deleteBudget(element?._id).subscribe({
         next: (res: any) => {
           if (res?.data?.value) {
-            console.log('delete res', res);
             this.deleteData(res?.data?.value, type);
           } else {
-            console.log('Empty delete response');
             this.snackbarService.openSnackBar(
               `Error occurred while deleting ${type}`
             );
           }
         },
         error: (err: any) => {
+          console.log('err in delete', err)
           this.snackbarService.openSnackBar(
             `Something went wrong while deleting ${type}`
           );
         },
       });
     } else {
-      console.log('Not able to delete');
       this.snackbarService.openSnackBar(
         `Error occurred while deleting ${type}`
       );

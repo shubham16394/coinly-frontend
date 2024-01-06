@@ -25,7 +25,9 @@ export class LoginComponent implements OnInit {
     private loginService: LoginService,
     private snackbarService: SnackbarService,
     private router: Router
-  ) {}
+  ) {
+    !this.loginService.isLoggedIn() ? this.router.navigate([''], {replaceUrl: true}) : this.router.navigate(['/dashboard'], {replaceUrl: true});
+  }
 
   ngOnInit() {
     this.loginForm = this.fb.group(
@@ -43,11 +45,12 @@ export class LoginComponent implements OnInit {
   }
 
   login() {
-    console.log(this.loginForm.value);
     this.loginService.login(this.loginForm).subscribe({
       next: (res: any) => {
-        console.log('Login response', res);
         if(res?.status) {
+          if(res?.data){
+            this.loginService.setUserInLocalStorage(res?.data);
+          }
           this.router.navigate(['/dashboard'], {replaceUrl: true});
         }
         else {

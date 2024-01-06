@@ -12,6 +12,7 @@ import { BudgetService } from './budget.service';
 import { MatIconModule } from '@angular/material/icon';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { SnackbarService } from '../services/snackbar.service';
+import { LoginService } from '../login/login.service';
 
 @NgModule({
   declarations: [
@@ -32,6 +33,6 @@ import { SnackbarService } from '../services/snackbar.service';
   exports: [
     BudgetComponent
   ],
-  providers: [BudgetService, SnackbarService]
+  providers: [BudgetService, SnackbarService, LoginService]
 })
 export class BudgetModule { }

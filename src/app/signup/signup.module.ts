@@ -12,6 +12,7 @@ import { RouterModule } from '@angular/router';
 import { MatListModule } from '@angular/material/list';
 import { SignupService } from './signup.service';
 import { SnackbarService } from '../services/snackbar.service';
+import { LoginService } from '../login/login.service';
 
 
 
@@ -36,7 +37,8 @@ import { SnackbarService } from '../services/snackbar.service';
   ],
   providers: [
     SignupService,
-    SnackbarService
+    SnackbarService,
+    LoginService
   ]
 })
 export class SignupModule { }

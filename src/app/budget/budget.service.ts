@@ -1,18 +1,25 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+import { of } from 'rxjs';
 
 @Injectable()
 export class BudgetService {
     url = environment.serverURL;
     constructor(private http: HttpClient) {}
 
-    addBudget(email: string, date: string, type: string, reqBody: object) {
-        return this.http.post(`${this.url}/budget/${email}/${date}/${type}/add`, reqBody);
+    addBudget(email: string | null, date: string, type: string, reqBody: object) {
+        if(email) {
+            return this.http.post(`${this.url}/budget/${email}/${date}/${type}/add`, reqBody);
+        }
+        return of();
     }
 
-    getBudget(email: string, date: string, type: string) {
-        return this.http.get(`${this.url}/budget/${email}/${date}/${type}/get`);
+    getBudget(email: string | null, date: string, type: string) {
+        if(email) {
+            return this.http.get(`${this.url}/budget/${email}/${date}/${type}/get`);
+        }
+        return of();
     }
 
     updateBudget(bId: string, reqBody: object) {

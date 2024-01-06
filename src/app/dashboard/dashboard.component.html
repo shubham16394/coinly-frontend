@@ -2,7 +2,7 @@
   <div class="centered-row">
     <mat-icon>face</mat-icon>
     <div style="margin-bottom: 30px">
-      Hi, {{ user.firstName }} {{ user.lastName }}
+      Hi, {{ capitalizeFirstLetter(firstName) }} {{ capitalizeFirstLetter(lastName) }}
       <button
         mat-button
         style="color: #ff4986; min-width: 0 !important"
@@ -133,12 +133,13 @@
     <div class="margin-tb-10 centered-row" *ngIf="timeFilter === 'monthly' && getNewDailyBudget() !== 0 && getNewDailyBudget()">
       <mat-card *ngIf="getAvgExpense().lastDays > days" style="color: white; font-weight: 550;">
         <mat-card-content>
-          Your avg expense pace which <p style="color: #2CB05F; margin-bottom: 0;"><b>{{ getAvgExpense().avgExpense }} ₹</b></p> is less than the daily budget. You can spend upto <p style="color: #2CB05F; margin-bottom: 0;"><b>{{getNewDailyBudget()}} ₹</b></p> and still can meet to monthly budget goal.
+          Your average spending, which is currently <b style="color: #2CB05F">{{ getAvgExpense().avgExpense }} ₹</b> is less than the daily budget, allows you to comfortably spend up to <b style="color: #2CB05F">{{getNewDailyBudget()}} ₹</b>  while still meeting your monthly budget goals.
         </mat-card-content>
       </mat-card>
       <mat-card *ngIf="getAvgExpense().lastDays < days" style="color: white; font-weight: 550;">
         <mat-card-content>
-          Your avg expense pace which <p style="color: #f74c82;; margin-bottom: 0;"><b>{{ getAvgExpense().avgExpense }} ₹</b></p> is more than the daily budget. You need to cut your daily budget to <p style="color: #f74c82;; margin-bottom: 0;"><b>{{getNewDailyBudget()}} ₹</b></p> in order to meet your monthly budget goal, otherwise with this expense pace, the total budget will last only <p style="color: #f74c82;; margin-bottom: 0;"><b>{{ getAvgExpense().lastDays }}</b></p> days and there are still <p style="color: #f74c82;; margin-bottom: 0;"><b>{{ getAvgExpense().leftDays }}</b></p> days left in completing the month.
+          <!-- Your average daily spending is <p style="color: #f74c82;; margin-bottom: 0;"><b>{{ getAvgExpense().avgExpense }} ₹</b></p> exceeding the daily budget. To reach your monthly goal reduce the daily budget to <p style="color: #f74c82;; margin-bottom: 0;"><b>{{getNewDailyBudget()}} ₹</b></p> Otherwise, at this expense rate, the budget will only last <p style="color: #f74c82;; margin-bottom: 0;"><b>{{ getAvgExpense().lastDays }}</b></p> days, with <p style="color: #f74c82;; margin-bottom: 0;"><b>{{ getAvgExpense().leftDays }}</b></p> days left in the month. -->
+          Your average daily spending is <b style="color: #f74c82;">{{ getAvgExpense().avgExpense }} ₹</b>, exceeding the daily budget. To reach your monthly goal, reduce the daily budget to <b style="color: #f74c82;">{{getNewDailyBudget()}} ₹</b>. Otherwise, at this expense rate, the budget will only last <b style="color: #f74c82;">{{ getAvgExpense().lastDays }}</b> days, with <b style="color: #f74c82;">{{ getAvgExpense().leftDays }}</b> days left in the month.
         </mat-card-content>
       </mat-card>
     </div>

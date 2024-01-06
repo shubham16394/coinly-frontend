@@ -21,6 +21,7 @@ import { SnackbarService } from '../services/snackbar.service';
 import { BudgetService } from '../budget/budget.service';
 import * as _ from 'lodash';
 import { SharedService } from '../services/shared.service';
+import { LoginService } from '../login/login.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -69,11 +70,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   value: number = 0;
   comment: string = '';
   expType: string = '';
-  email = 'shubham16394@gmail.com';
-  user = {
-    firstName: 'Shubham',
-    lastName: 'Tiwari',
-  };
+  email: string | null = '';
+  firstName: string | null = '';
+  lastName: string | null = '';
+
 
   constructor(
     public dialog: MatDialog,
@@ -81,10 +81,17 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     private dashboardService: DashboardService,
     private snackbarService: SnackbarService,
     private budgetService: BudgetService,
-    private sharedService: SharedService
-  ) {}
+    private sharedService: SharedService,
+    private loginService: LoginService
+  ) {
+    !this.loginService.isLoggedIn() ? this.router.navigate([''], {replaceUrl: true}) : this.router.navigate(['/dashboard'], {replaceUrl: true});
+  }
 
   async ngOnInit() {
+    const {email, firstName, lastName} = this.loginService.getUserFromLocalStorage();
+    this.email = email;
+    this.firstName = firstName;
+    this.lastName = lastName;
     this.initCall();
   }
 
@@ -178,6 +185,14 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   getAbsExpChange() {
     return Math.abs(this.expChange);
+  }
+
+  capitalizeFirstLetter(str: string | null) {
+    if(str) {
+      str = str.toLowerCase();
+      return str.charAt(0).toUpperCase() + str.slice(1);  
+    }
+    return '';
   }
 
   async prepareData(
@@ -622,6 +637,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   }
 
   logout() {
+    this.loginService.unsetUserInLocalStorage();
     let timer = 5;
     let count = 4;
     const intervalId = setInterval(() => {
