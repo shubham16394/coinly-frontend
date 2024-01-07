@@ -1,3 +1,3 @@
 export const environment = {
-    serverURL: "https://coinly.cash/coinly",
+    serverURL: "https://www.coinly.cash/coinly",
 };
