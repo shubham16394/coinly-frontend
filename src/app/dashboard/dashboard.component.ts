@@ -653,7 +653,17 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       }
     }, 1000);
     setTimeout(() => {
-      this.router.navigate([''], { replaceUrl: true });
+      this.loginService.logout().subscribe((res: any) => {
+        console.log('log out res', res);
+        if(res?.status){
+          this.router.navigate([''], { replaceUrl: true });
+        }
+        else {
+          this.snackbarService.openSnackBar(
+            `Something went wrong while logging out`
+          );  
+        }
+      });
     }, 5000);
   }
 
