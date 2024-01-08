@@ -106,7 +106,9 @@ export class BudgetComponent implements OnInit {
         error: (error) => {
           // Handle error
           console.error('Error in getting budget data:', error);
-          this.snackbarService.openSnackBar('Something went wrong!');
+          this.snackbarService.openSnackBar('You have been logged out!');
+          this.loginService.unsetUserInLocalStorage();
+          this.router.navigate([''], {replaceUrl: true})
         },
       }
     );

@@ -142,7 +142,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
           },
           error: (err: any) => {
             console.log('Err in getting exp data', err);
-            this.snackbarService.openSnackBar('Something went wrong!');
+            this.snackbarService.openSnackBar('You have been logged out!');
+            this.loginService.unsetUserInLocalStorage();
+            this.router.navigate([''], {replaceUrl: true})
             resolve();
           },
         });
